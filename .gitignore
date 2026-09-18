@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+.wrangler/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local cache & logs
+webapp/wallpaper-cache/
+*.log

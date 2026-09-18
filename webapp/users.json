@@ -1,0 +1,18 @@
+﻿[
+    {
+        "username":  "admin",
+        "passwordHash":  "6eIj5bqtdbd5T+2AYKaZ1WQyJDhkCmTw8klfNGmThN4=",
+        "passwordSalt":  "RK2/ehAXa3oJXDDdStWh0g==",
+        "passwordIterations":  120000,
+        "name":  "Administrator",
+        "mustChangePassword":  false
+    },
+    {
+        "username":  "RAJESH",
+        "passwordHash":  "zatq7845sVXNqgvbeNe5/TVEQdMZUHC8Ok5M4ryC6yg=",
+        "passwordSalt":  "II0P9NJ/3d+5XlUY7Z9LDQ==",
+        "passwordIterations":  120000,
+        "name":  "Rajesh",
+        "mustChangePassword":  false
+    }
+]

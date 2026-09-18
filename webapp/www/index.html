@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Timesheet entry</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="authView" class="auth-view">
+  <div class="auth-card">
+    <div class="brand auth-brand">
+      <span class="dot"></span>
+      <h1>Timesheet</h1>
+    </div>
+    <h2>Sign in</h2>
+    <form id="loginForm" autocomplete="off">
+      <label class="f">
+        <span>Username</span>
+        <input type="text" id="loginUser" value="admin" required>
+      </label>
+      <label class="f">
+        <span>Password</span>
+        <input type="password" id="loginPass" value="admin123" required>
+      </label>
+      <div class="actions auth-actions">
+        <div id="loginMsg" class="msg"></div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+    </form>
+    <button type="button" id="forgotPassword" class="text-btn">Forgot password?</button>
+    <div id="forgotMsg" class="auth-help" hidden>Ask an administrator to reset your password. You will be asked to choose a new password after signing in.</div>
+  </div>
+</div>
+
+<div id="passwordView" class="password-view" hidden>
+  <form id="passwordForm" class="password-card" autocomplete="off">
+    <h2 id="passwordTitle">Change password</h2>
+    <p id="passwordIntro" class="muted">Choose a new password for your account.</p>
+    <label class="f" id="currentPasswordField">
+      <span>Current password</span>
+      <input type="password" id="currentPassword" minlength="8" required>
+    </label>
+    <label class="f">
+      <span>New password</span>
+      <input type="password" id="newPassword" minlength="8" required>
+    </label>
+    <label class="f">
+      <span>Confirm new password</span>
+      <input type="password" id="confirmPassword" minlength="8" required>
+    </label>
+    <div class="actions">
+      <div id="passwordMsg" class="msg"></div>
+      <button type="button" id="cancelPassword" class="btn btn-ghost">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save password</button>
+    </div>
+  </form>
+</div>
+
+<div id="appShell" class="shell" hidden>
+
+<aside class="sidebar no-print">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>Timesheet</h1>
+  </div>
+
+  <div id="currentUser" class="current-user" hidden></div>
+  <button type="button" id="btnLogout" class="btn btn-ghost btn-tiny logout-btn">Logout</button>
+  <button type="button" id="btnChangePassword" class="btn btn-ghost btn-tiny password-btn">Change password</button>
+
+  <nav class="viewtabs">
+    <button type="button" class="vtab is-on" data-view="tasks">Today's Tasks</button>
+    <button type="button" class="vtab"       data-view="entry">Entry</button>
+    <button type="button" class="vtab"       data-view="day">Day</button>
+    <button type="button" class="vtab"       data-view="report">Weekly report</button>
+    <button type="button" class="vtab"       data-view="projects">Projects</button>
+    <button type="button" class="vtab"       data-view="team">Team</button>
+    <button type="button" class="vtab"       data-view="effort">Effort</button>
+    <button type="button" class="vtab"       data-view="holidays">Holidays</button>
+    <button type="button" id="usersTab" class="vtab" data-view="users" hidden>Users</button>
+  </nav>
+
+  <div class="holiday-side">
+    <div class="hs-head">Upcoming holidays</div>
+    <div id="holidaySide" class="hs-list"></div>
+  </div>
+
+  <div class="totals">
+    <div class="stat"><span class="stat-lbl">today</span><span class="stat-val" id="totalToday">-</span></div>
+    <div class="stat"><span class="stat-lbl">this week</span><span class="stat-val" id="totalWeek">-</span></div>
+    <div class="stat"><span class="stat-lbl">entries</span><span class="stat-val" id="totalCount">-</span></div>
+  </div>
+</aside>
+
+<div class="content">
+
+<!-- =================================================== ENTRY VIEW -->
+<main id="viewEntry" hidden>
+  <section class="card form-card">
+
+    <div id="editBanner" class="edit-banner" hidden>
+      <span>Editing row <strong id="editRow"></strong> - saving overwrites that row in Excel.</span>
+      <button type="button" id="btnCancelEdit" class="btn btn-tiny">Cancel</button>
+    </div>
+
+    <form id="entryForm" autocomplete="off">
+      <div class="grid">
+
+        <label class="f f-date">
+          <span>Date</span>
+          <input type="date" id="date" required>
+        </label>
+
+        <label class="f f-hours">
+          <span>Hours <em id="hoursHint"></em></span>
+          <input type="text" id="hours" placeholder="1.5 / 1:30 / 1h 30m" required>
+          <div class="chips">
+            <button type="button" class="chip" data-h="0.5">0.5</button>
+            <button type="button" class="chip" data-h="1">1</button>
+            <button type="button" class="chip" data-h="2">2</button>
+            <button type="button" class="chip" data-h="4">4</button>
+            <button type="button" class="chip" data-h="8">8</button>
+          </div>
+        </label>
+
+        <label class="f f-project">
+          <span>Project</span>
+          <input type="text" id="project" list="dl-project" placeholder="Pick an In-Progress project" required>
+          <datalist id="dl-project"></datalist>
+        </label>
+
+        <label class="f f-task">
+          <span>Task <em id="taskHint"></em></span>
+          <input type="text" id="task" list="dl-task" placeholder="Pick a task on this project">
+          <datalist id="dl-task"></datalist>
+        </label>
+
+        <label class="f f-cat">
+          <span>Category</span>
+          <input type="text" id="category" list="dl-category">
+          <datalist id="dl-category"></datalist>
+        </label>
+
+        <label class="f f-budget">
+          <span>Budget <em class="req">required</em></span>
+          <input type="text" id="budget" list="dl-budget" required>
+          <datalist id="dl-budget"></datalist>
+        </label>
+
+        <label class="f f-billable">
+          <span>Billable</span>
+          <input type="text" id="billable" list="dl-billable">
+          <datalist id="dl-billable"></datalist>
+        </label>
+
+        <label class="f f-reason">
+          <span>Non-billable Reason</span>
+          <input type="text" id="nonBillableReason" list="dl-nonBillableReason">
+          <datalist id="dl-nonBillableReason"></datalist>
+        </label>
+
+        <label class="f f-notes">
+          <span>Notes</span>
+          <textarea id="notes" rows="2" placeholder="What did you work on?"></textarea>
+        </label>
+      </div>
+
+      <details class="extra">
+        <summary>Support details</summary>
+        <div class="grid grid-extra">
+          <label class="f">
+            <span>Support Ticket ID</span>
+            <input type="text" id="ticket">
+          </label>
+          <label class="f">
+            <span>Incident Type</span>
+            <input type="text" id="incidentType" list="dl-incidentType">
+            <datalist id="dl-incidentType"></datalist>
+          </label>
+        </div>
+      </details>
+
+      <div class="actions">
+        <div id="msg" class="msg"></div>
+        <button type="button" id="btnKeep" class="btn btn-ghost">Add &amp; keep</button>
+        <button type="submit" id="btnAdd" class="btn btn-primary">Add entry</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card update-card">
+    <div class="list-head">
+      <div>
+        <h2>Yesterday's update</h2>
+        <div id="updateDate" class="update-date">Loading...</div>
+      </div>
+      <button type="button" id="btnCopyUpdate" class="btn btn-tiny">Copy update</button>
+    </div>
+    <div id="yesterdayUpdate" class="update-text" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="No entries logged for yesterday."></div>
+    <div class="update-foot">
+      <span id="updateStatus" class="muted">Generated from yesterday's entries</span>
+      <button type="button" id="btnOpenYesterday" class="btn btn-tiny">Open details</button>
+    </div>
+  </section>
+
+  <section class="card list-card">
+    <div class="list-head">
+      <h2>Recent entries</h2>
+      <button type="button" id="btnReload" class="btn btn-tiny">Reload</button>
+    </div>
+    <div id="entries" class="entries"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== DAY VIEW -->
+<main id="viewDay" hidden>
+  <section class="card day-card">
+
+    <div class="weeknav no-print">
+      <button type="button" id="dayPrev" class="btn btn-tiny">&#8592; Previous</button>
+      <div class="daylabel">
+        <div class="dy-name" id="dyName">-</div>
+        <div class="dy-rel"  id="dyRel">-</div>
+      </div>
+      <button type="button" id="dayNext"  class="btn btn-tiny">Next &#8594;</button>
+      <button type="button" id="dayToday" class="btn btn-tiny">Today</button>
+      <input type="date" id="dayPick" class="daypick" aria-label="Jump to date">
+      <span class="spacer"></span>
+      <button type="button" id="btnCopyDay" class="btn btn-tiny">Copy as text</button>
+      <button type="button" id="btnPrintDay" class="btn btn-tiny">Print / PDF</button>
+    </div>
+
+    <div class="print-only print-head">
+      <h2 id="printDayTitle">Daily timesheet</h2>
+    </div>
+
+    <div id="dayBody"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== REPORT VIEW -->
+<main id="viewReport" hidden>
+  <section class="card report-card">
+
+    <div class="weeknav no-print">
+      <button type="button" id="wkPrev" class="btn btn-tiny">&#8592; Previous</button>
+      <div class="weeklabel">
+        <div class="wk-iso"   id="wkIso">-</div>
+        <div class="wk-range" id="wkRange">-</div>
+      </div>
+      <button type="button" id="wkNext" class="btn btn-tiny">Next &#8594;</button>
+      <button type="button" id="wkThis" class="btn btn-tiny">This week</button>
+      <span class="spacer"></span>
+      <button type="button" id="btnCopyReport" class="btn btn-tiny">Copy as text</button>
+      <button type="button" id="btnPrint"      class="btn btn-tiny">Print / PDF</button>
+    </div>
+
+    <div class="print-only print-head">
+      <h2 id="printTitle">Weekly timesheet report</h2>
+    </div>
+
+    <div id="reportBody"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== TASKS VIEW -->
+<main id="viewTasks" class="tasks-main">
+  <section class="card tasks-card">
+    <div class="tasks-head">
+      <h2>Today's Tasks</h2>
+      <span class="board-stats" id="boardStats"></span>
+      <button type="button" id="btnShowDone" class="btn btn-tiny" hidden>Show earlier completed</button>
+      <span class="task-date" id="taskDate">-</span>
+    </div>
+
+    <form id="taskForm" autocomplete="off" class="task-input-form">
+      <div class="task-input-group">
+        <input type="text" id="taskTitle" placeholder="Add a new task..." maxlength="200" required>
+        <select id="taskPriority" class="prio-select" aria-label="Priority">
+          <option value="1">P1 - Highest</option>
+          <option value="2">P2 - High</option>
+          <option value="3" selected>P3 - Medium</option>
+          <option value="4">P4 - Low</option>
+          <option value="5">P5 - Lowest</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">+ Add Task</button>
+      </div>
+      <div id="taskMsg" class="msg"></div>
+    </form>
+
+    <div id="tasksBoard" class="tasks-board">
+      <p class="empty">Loading...</p>
+    </div>
+  </section>
+</main>
+
+<!-- =================================================== EFFORT VIEW -->
+<main id="viewEffort" class="tasks-main" hidden>
+  <section class="card proj-card">
+
+    <div class="weeknav no-print">
+      <div class="proj-title">
+        <div class="pj-name">Effort by project</div>
+        <div class="pj-sub" id="pjRange">-</div>
+      </div>
+      <span class="spacer"></span>
+      <label class="rangepick">Range
+        <select id="pjRangeSel">
+          <option value="all" selected>All time</option>
+          <option value="ytd">This year</option>
+          <option value="quarter">This quarter</option>
+          <option value="month">This month</option>
+          <option value="30">Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      <input type="date" id="pjFrom" class="daypick" aria-label="From" hidden>
+      <input type="date" id="pjTo"   class="daypick" aria-label="To"   hidden>
+      <button type="button" id="btnCopyProjects" class="btn btn-tiny">Copy as text</button>
+      <button type="button" id="btnPrintProjects" class="btn btn-tiny">Print / PDF</button>
+    </div>
+
+    <div class="print-only print-head">
+      <h2 id="printProjTitle">Effort by project</h2>
+    </div>
+
+    <div id="projBody"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== PROJECTS VIEW -->
+<main id="viewProjectAdmin" class="tasks-main" hidden>
+  <section class="card padm-card">
+    <div class="tasks-head">
+      <h2>Projects</h2>
+      <span class="board-stats" id="padmStats"></span>
+    </div>
+
+    <form id="padmForm" autocomplete="off" class="task-input-form">
+      <div class="task-input-group">
+        <input type="text" id="padmName" placeholder="New project name..." maxlength="120" required>
+        <select id="padmStatus" class="prio-select" aria-label="Status">
+          <option value="New">New</option>
+          <option value="In-Progress" selected>In-Progress</option>
+          <option value="Hold">Hold</option>
+          <option value="Complete">Complete</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">+ Add Project</button>
+      </div>
+      <div id="padmMsg" class="msg"></div>
+    </form>
+
+    <p class="padm-note">Only <strong>In-Progress</strong> projects can be booked against on the Entry tab.</p>
+
+    <div id="padmBody"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== HOLIDAYS VIEW -->
+<main id="viewHolidays" class="tasks-main" hidden>
+  <section class="card hol-card">
+    <div class="tasks-head">
+      <h2>Holidays <span id="holYear"></span></h2>
+      <span class="board-stats" id="holStats"></span>
+      <span class="task-date" id="holNext">-</span>
+    </div>
+
+    <form id="holForm" autocomplete="off" class="task-input-form">
+      <div class="task-input-group">
+        <input type="date" id="holDate" class="hol-datepick" aria-label="Holiday date" required>
+        <input type="text" id="holName" placeholder="Holiday name..." maxlength="60" required>
+        <button type="submit" class="btn btn-primary btn-sm">+ Add Holiday</button>
+      </div>
+      <div id="holMsg" class="msg"></div>
+    </form>
+
+    <p class="padm-note">Holidays live on the <strong>Holidays</strong> sheet in the workbook - adding one here writes it straight into Excel.</p>
+
+    <div id="holBody"><p class="empty">Loading...</p></div>
+  </section>
+</main>
+
+<!-- =================================================== TEAM VIEW -->
+<main id="viewTeam" class="tasks-main" hidden>
+  <section class="card team-card">
+    <div class="tasks-head">
+      <h2>Team activities</h2>
+      <span class="board-stats" id="teamStats"></span>
+      <label class="rangepick" style="margin-left:auto">Year
+        <select id="teamYear"></select>
+      </label>
+    </div>
+
+    <form id="teamForm" autocomplete="off" class="task-input-form">
+      <div class="task-input-group team-input-group">
+        <select id="teamPerson" class="prio-select" aria-label="Person"></select>
+        <select id="teamActivity" class="prio-select" aria-label="Activity"></select>
+        <input type="week" id="teamWeek" aria-label="Week" required>
+        <input type="text" id="teamNotes" placeholder="Notes (optional)" maxlength="200">
+        <button type="submit" class="btn btn-primary btn-sm">+ Log week</button>
+      </div>
+      <div id="teamMsg" class="msg"></div>
+    </form>
+
+    <div id="teamBody"><p class="empty">Loading...</p></div>
+
+    <details class="team-people">
+      <summary>Manage people</summary>
+      <div id="teamPeopleBody"></div>
+      <form id="teamPersonForm" autocomplete="off" class="padm-taskform">
+        <input type="text" id="teamNewPerson" class="padm-taskinput" placeholder="Add someone to the team..." maxlength="80">
+        <button type="submit" class="btn btn-tiny">Add person</button>
+      </form>
+    </details>
+  </section>
+</main>
+
+<!-- =================================================== USERS VIEW -->
+<main id="viewUsers" hidden>
+  <section class="card users-card">
+    <div class="list-head">
+      <div>
+        <h2>Users</h2>
+        <div class="muted">Only administrators can create login accounts.</div>
+      </div>
+    </div>
+
+    <form id="userForm" autocomplete="off" class="user-form">
+      <label class="f">
+        <span>Username</span>
+        <input type="text" id="newUsername" maxlength="40" required>
+      </label>
+      <label class="f">
+        <span>Display name</span>
+        <input type="text" id="newUserName" maxlength="80" required>
+      </label>
+      <label class="f">
+        <span>Temporary password</span>
+        <input type="password" id="newUserPassword" minlength="8" required>
+      </label>
+      <div class="actions">
+        <div id="userMsg" class="msg"></div>
+        <button type="submit" class="btn btn-primary">Create user</button>
+      </div>
+    </form>
+
+    <div id="usersBody" class="user-list"><p class="empty">Loading...</p></div>
+
+    <form id="resetUserForm" autocomplete="off" class="reset-user-form">
+      <h3>Reset a user's password</h3>
+      <select id="resetUsername" required aria-label="User to reset"></select>
+      <input type="password" id="resetUserPassword" minlength="8" placeholder="Temporary password" required>
+      <button type="submit" class="btn btn-tiny">Reset password</button>
+    </form>
+  </section>
+</main>
+
+</div><!-- /.content -->
+</div><!-- /.shell -->
+
+<script src="app.js"></script>
+</body>
+</html>

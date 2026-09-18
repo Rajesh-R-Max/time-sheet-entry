@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Timesheet</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="page">
+    <section id="loginPanel" class="panel auth-panel">
+      <p class="eyebrow">TIMESHEET</p>
+      <h1>Sign in</h1>
+      <form id="loginForm">
+        <label>Username<input id="username" autocomplete="username" required></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Sign in</button>
+        <button type="button" id="forgotPassword" class="link-button">Forgot password?</button>
+        <button type="button" id="registerLink" class="link-button">Create an account</button>
+        <p id="loginMessage" class="message"></p>
+      </form>
+      <form id="registerForm" class="forgot-form" hidden>
+        <h2>Create account</h2>
+        <label>Username<input id="registerUsername" required></label>
+        <label>Display name<input id="registerName" required></label>
+        <label>Email<input id="registerEmail" type="email" required></label>
+        <label>Password<input id="registerPassword" type="password" minlength="8" required></label>
+        <label>Secondary recovery password<input id="registerRecovery" type="password" minlength="8" required></label>
+        <button type="submit">Create account</button>
+        <button type="button" id="cancelRegister" class="link-button">Back to sign in</button>
+        <p id="registerMessage" class="message"></p>
+      </form>
+      <form id="forgotForm" class="forgot-form" hidden>
+        <h2>Reset password</h2>
+        <p class="muted">Use the username, email, and secondary recovery password created during registration.</p>
+        <label>Username<input id="forgotUsername" autocomplete="username" required></label>
+        <label>Email<input id="forgotEmail" type="email" required></label>
+        <label>Secondary recovery password<input id="forgotRecovery" type="password" required></label>
+        <label>New password<input id="forgotNewPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Confirm new password<input id="forgotConfirmPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+        <button type="submit">Save new password</button>
+        <button type="button" id="cancelForgot" class="link-button">Back to sign in</button>
+        <p id="forgotMessage" class="message"></p>
+      </form>
+    </section>
+
+    <section id="appPanel" class="shell" hidden>
+      <aside class="sidebar">
+        <div class="brand"><span class="dot"></span><div><p class="eyebrow">TIMESHEET</p><strong>Entry</strong></div></div>
+        <div id="currentUser" class="current-user"></div>
+        <nav class="nav-modules" aria-label="Timesheet navigation">
+          <div class="nav-module">
+            <span class="nav-module-title">Today's Work</span>
+            <div class="nav-module-items">
+              <button class="tab active" data-view="tasks"><span class="tab-icon">📋</span> Today's Tasks</button>
+              <button class="tab" data-view="reminders"><span class="tab-icon">⏰</span> Reminders</button>
+              <button class="tab" data-view="entry"><span class="tab-icon">✍️</span> Entry</button>
+            </div>
+          </div>
+
+          <div class="nav-module">
+            <span class="nav-module-title">Analysis &amp; Reports</span>
+            <div class="nav-module-items">
+              <button class="tab" data-view="day"><span class="tab-icon">📅</span> Day</button>
+              <button class="tab" data-view="report"><span class="tab-icon">📊</span> Weekly report</button>
+            </div>
+          </div>
+
+          <div class="nav-module">
+            <span class="nav-module-title">Organization</span>
+            <div class="nav-module-items">
+              <button class="tab" data-view="projects"><span class="tab-icon">📁</span> Projects</button>
+              <button class="tab" data-view="team"><span class="tab-icon">👥</span> Team</button>
+              <button class="tab" data-view="holidays"><span class="tab-icon">🌴</span> Holidays</button>
+            </div>
+          </div>
+
+          <div class="nav-module" id="adminModule">
+            <span class="nav-module-title">Administration</span>
+            <div class="nav-module-items">
+              <button class="tab" id="sessionsTab" data-view="sessions" hidden><span class="tab-icon">🌐</span> Active Sessions</button>
+              <button class="tab" id="usersTab" data-view="users" hidden><span class="tab-icon">👤</span> Users</button>
+              <button class="tab" id="optionsTab" data-view="options"><span class="tab-icon">⚙️</span> Options</button>
+            </div>
+          </div>
+        </nav>
+        <div class="sidebar-reminders"><h3>Reminders <span id="sidebarReminderCount" class="sidebar-badge"></span><button type="button" id="sidebarAddReminderBtn" class="sidebar-add-btn" title="Add reminder">+</button></h3><div id="sidebarReminderList"></div></div>
+        <div class="sidebar-tasks"><h3>Active tasks <span id="sidebarTaskCount" class="sidebar-badge"></span></h3><div id="sidebarTaskList"></div></div>
+        <div class="sidebar-holidays"><h3>Upcoming holidays</h3><div id="sidebarHolidayList"></div></div>
+        <div class="side-stats"><div><span>today</span><strong id="todayTotal">0h</strong></div><div><span>this week</span><strong id="weekTotal">0h</strong></div><div><span>entries</span><strong id="entryTotal">0</strong></div></div>
+        <div class="sidebar-footer-actions">
+          <button id="changePassword" class="sidebar-btn-action" title="Change password">🔑 Password</button>
+          <button id="logout" class="sidebar-btn-action sidebar-logout-btn" title="Sign out">🚪 Sign out</button>
+        </div>
+      </aside>
+      <main class="workspace">
+        <header class="workspace-head"><div><p class="eyebrow">CLOUDFLARE D1</p><h1 id="viewTitle">Timesheet entry</h1></div><div class="workspace-meta"><span id="workspaceUser" class="workspace-user"></span><span class="status"><i></i> Connected</span></div></header>
+      <div id="entryWorkspace">
+        <div class="entry-workspace-grid">
+          <div class="entry-form-column">
+            <form id="entryForm" class="entry-form">
+              <label>Date<input id="date" class="date-input" type="date" required></label>
+              <label class="hours-field">Hours<input id="hours" type="number" min="0.01" max="24" step="0.01" required><span class="hour-chips"><button type="button" data-hours="0.5">0.5</button><button type="button" data-hours="1">1</button><button type="button" data-hours="2">2</button><button type="button" data-hours="4">4</button><button type="button" data-hours="8">8</button></span></label>
+              <label>Project<select id="project" required><option value="">Select project</option></select></label>
+              <label>Task<select id="task"><option value="">Select task</option></select></label>
+              <label>Category<select id="category"><option value="">Select category</option></select></label>
+              <label>Budget <em>* required *</em><select id="budget" required><option value="">Select budget</option></select></label>
+              <label>Billable<select id="billable"><option value="">Select billable status</option></select></label>
+              <label class="wide-field">Non-billable Reason<select id="nonBillableReason"><option value="">Select reason</option></select></label>
+              <label class="wide-field">Notes<textarea id="notes" rows="2"></textarea></label>
+              <details class="support-details">
+                <summary>Support details</summary>
+                <div class="support-grid">
+                  <label>Support Ticket ID<input id="ticket"></label>
+                  <label>Incident Type<input id="incidentType"></label>
+                </div>
+              </details>
+              <div class="entry-actions"><button type="button" id="cancelEdit" class="secondary" hidden>Cancel edit</button><button type="button" id="addKeep" class="secondary">Add &amp; keep</button><button type="submit" id="saveEntry">Add entry</button></div>
+              <p id="entryMessage" class="message"></p>
+            </form>
+
+            <section class="scratchpad-card">
+              <header class="scratchpad-head">
+                <div class="scratchpad-title-group">
+                  <span class="scratchpad-icon">📝</span>
+                  <div>
+                    <h3>Rough Work / Scratchpad</h3>
+                    <p class="scratchpad-subtitle">Draft your notes, tickets, snippets, or daily updates here. Auto-saved locally.</p>
+                  </div>
+                </div>
+                <div class="scratchpad-actions">
+                  <button type="button" id="copyToNotesBtn" class="btn-scratchpad-action" title="Copy scratchpad text into Entry Notes field">📋 Copy to Notes</button>
+                  <button type="button" id="clearScratchpadBtn" class="btn-scratchpad-action btn-scratchpad-clear" title="Clear rough notes">Clear</button>
+                  <span id="scratchpadStatus" class="scratchpad-status">Auto-saved</span>
+                </div>
+              </header>
+              <textarea id="scratchpadText" class="scratchpad-textarea" rows="4" placeholder="Type or paste your rough work, ongoing thoughts, task notes, or draft entries here..."></textarea>
+            </section>
+          </div>
+
+          <div class="entry-recent-column">
+            <section class="recent-card">
+              <header><h2>Recent entries</h2><button type="button" id="reloadEntries">Reload</button></header>
+              <div id="entries"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div id="tabWorkspace" class="tab-workspace" hidden></div>
+      <p id="viewMessage" class="view-message">The Cloudflare workspace is using D1 for its data.</p>
+      </main>
+    </section>
+
+    <section id="passwordPanel" class="panel password-panel" hidden>
+      <p class="eyebrow">ACCOUNT SECURITY</p>
+      <h2>Change password</h2>
+      <form id="passwordForm">
+        <label>Current password<input id="currentPassword" type="password" autocomplete="current-password" required></label>
+        <label>New password<input id="newPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+        <label>Confirm new password<input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+        <div class="password-actions"><button type="button" id="cancelPassword" class="secondary">Cancel</button><button type="submit">Save password</button></div>
+        <p id="passwordMessage" class="message"></p>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

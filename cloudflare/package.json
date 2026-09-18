@@ -1,0 +1,18 @@
+{
+  "name": "timesheet-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "db:init": "wrangler d1 execute timesheet-db --remote --file=schema.sql",
+    "bootstrap-admin": "node scripts/bootstrap-admin.mjs",
+    "migrate-excel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/migrate-excel.ps1",
+    "migrate-projects": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/migrate-projects.ps1",
+    "migrate-options": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/migrate-options.ps1",
+    "promote-dev-test": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/promote-dev-to-test.ps1",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
