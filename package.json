@@ -1,0 +1,9 @@
+{
+  "name": "timesheet-root",
+  "private": true,
+  "scripts": {
+    "deploy:dev": "npm --prefix cloudflare run deploy -- --env dev",
+    "deploy:test": "npm --prefix cloudflare run deploy -- --env test",
+    "deploy:prod": "npm --prefix cloudflare run deploy -- --env prod"
+  }
+}
