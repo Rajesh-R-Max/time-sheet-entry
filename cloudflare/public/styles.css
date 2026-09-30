@@ -1485,14 +1485,36 @@ button.secondary:hover {
   margin: 0;
 }
 
+.day-card {
+  border-top: 4px solid var(--ink);
+}
+
+.report-card {
+  border-top: 4px solid var(--mint-deep);
+}
+
 .day-toolbar, .report-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding-bottom: 12px;
+  gap: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
+}
+
+.day-toolbar > div, .report-toolbar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.day-toolbar strong, .report-toolbar strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .day-toolbar button, .report-toolbar button {
@@ -1504,27 +1526,42 @@ button.secondary:hover {
   font-weight: 600;
   border-radius: var(--radius-pill);
   box-shadow: none;
+  cursor: pointer;
+  transition: all .15s ease;
 }
 
 .day-toolbar button:hover, .report-toolbar button:hover {
   background: var(--mint-subtle);
+  border-color: var(--mint);
+  color: var(--mint-deep);
   transform: none;
+}
+
+.day-toolbar .date-input {
+  width: auto;
+  min-height: 32px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: var(--radius-pill);
 }
 
 .btn-pdf-export {
   background: var(--ink) !important;
   color: #ffffff !important;
+  border-color: var(--ink) !important;
 }
 
 .btn-pdf-export:hover {
   background: var(--ink-dark) !important;
+  border-color: var(--ink-dark) !important;
+  color: #ffffff !important;
 }
 
 .day-kpis, .report-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
-  margin: 14px 0;
+  gap: 12px;
+  margin: 18px 0;
 }
 
 .day-kpis div, .report-kpis div {
@@ -1594,7 +1631,68 @@ button.secondary:hover {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+}
+
+.report-section-title {
+  margin: 24px 0 10px;
+  padding-bottom: 6px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+/* Day & Weekly Charts, Progress Bars */
+.day-projects, .day-bars, .day-entries {
+  display: grid;
+  gap: 8px;
+}
+
+.day-project-row, .reason-row, .bar-row, .day-bar-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(100px, 2fr) 55px 45px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  font-size: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.reason-row {
+  grid-template-columns: minmax(140px, 1.2fr) minmax(100px, 2fr) 55px;
+}
+
+.day-bar-row {
+  grid-template-columns: 110px minmax(100px, 2fr) 55px;
+}
+
+.day-project-row span, .reason-row span, .bar-row span, .day-bar-row span {
+  color: var(--ink);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-project-row strong, .reason-row strong, .bar-row strong, .day-bar-row strong {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+}
+
+.day-project-row small, .bar-row small {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-weight: 600;
 }
 
 .bar-track, .reason-track, .day-bar-track {
@@ -1611,6 +1709,113 @@ button.secondary:hover {
   border-radius: inherit;
 }
 
+.day-bar-track i {
+  background: linear-gradient(90deg, var(--mint-deep), var(--yellow));
+}
+
+.reason-track i {
+  background: var(--yellow);
+}
+
+/* Billable Split Bar */
+.split-bar {
+  display: flex;
+  height: 10px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  margin-top: 6px;
+}
+
+.split-bar i {
+  background: var(--mint-deep);
+  height: 100%;
+}
+
+.split-bar b {
+  background: var(--yellow);
+  height: 100%;
+}
+
+.split-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.split-labels span:first-child {
+  color: var(--mint-deep);
+}
+
+.split-labels span:last-child {
+  color: #a87913;
+}
+
+/* Day Entries List */
+.day-entry-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--coral);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.day-entry-main strong {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.day-entry-main span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.day-entry-main p {
+  margin: 4px 0 6px;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.day-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.day-tags em {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--mint-subtle);
+  border: 1px solid var(--mint);
+  color: var(--mint-deep);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.day-entry-hours {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Weekly Report Tree Structure */
 .report-week, .report-project, .report-task {
   margin: 0;
   border: 0;
@@ -1622,17 +1827,101 @@ button.secondary:hover {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 9px 8px;
+  padding: 10px 12px;
   cursor: pointer;
   list-style: none;
   font-weight: 700;
+  border-radius: var(--radius-sm);
+  transition: background .15s ease;
 }
 
 .report-week > summary {
   background: var(--paper);
   color: var(--ink);
   font-size: 13px;
-  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--mint-deep);
+  margin-top: 8px;
+}
+
+.report-week > summary:hover {
+  background: var(--mint-subtle);
+}
+
+.report-project {
+  margin-left: 16px;
+}
+
+.report-project > summary {
+  color: var(--ink);
+  font-size: 12px;
+  border-left: 3px solid var(--coral);
+  margin-top: 4px;
+}
+
+.report-project > summary:hover {
+  background: var(--coral-subtle);
+}
+
+.report-task {
+  margin-left: 20px;
+}
+
+.report-task > summary {
+  color: var(--muted);
+  font-size: 12px;
+  border-left: 2px solid var(--yellow);
+}
+
+.report-task > summary:hover {
+  background: var(--yellow-subtle);
+}
+
+.report-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 70px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px 8px 36px;
+  border-top: 1px solid var(--line-subtle);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.report-row strong {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  text-align: right;
+  font-weight: 700;
+}
+
+.report-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.report-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  margin-top: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.report-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  margin-top: 14px;
 }
 
 /* Team Activities View & Calendar */
