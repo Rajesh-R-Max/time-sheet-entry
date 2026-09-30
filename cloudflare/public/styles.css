@@ -105,6 +105,7 @@ label {
 }
 
 label em, label .req {
+  display: inline;
   color: var(--coral);
   font-style: normal;
   font-weight: 700;
