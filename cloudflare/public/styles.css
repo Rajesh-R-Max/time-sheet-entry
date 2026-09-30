@@ -104,6 +104,13 @@ label {
   letter-spacing: 0.05em;
 }
 
+label em, label .req {
+  color: var(--coral);
+  font-style: normal;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
 input, select, textarea {
   width: 100%;
   padding: 10px 13px;
