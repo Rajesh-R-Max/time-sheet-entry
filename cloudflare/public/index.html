@@ -7,7 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=botanic-16">
+  <link rel="stylesheet" href="/styles.css?v=botanic-17">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
   <main class="page">
@@ -18,6 +19,23 @@
         <label>Username<input id="username" autocomplete="username" required></label>
         <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
         <button type="submit">Sign in</button>
+        <div class="auth-divider"><span>or</span></div>
+        <div id="googleBtnWrap" class="google-btn-wrap">
+          <div id="g_id_onload"
+               data-client_id="845244199925-sample.apps.googleusercontent.com"
+               data-callback="handleGoogleLogin"
+               data-auto_prompt="false">
+          </div>
+          <div class="g_id_signin"
+               data-type="standard"
+               data-size="large"
+               data-theme="outline"
+               data-text="sign_in_with"
+               data-shape="pill"
+               data-logo_alignment="left"
+               data-width="100%">
+          </div>
+        </div>
         <button type="button" id="forgotPassword" class="link-button">Forgot password?</button>
         <button type="button" id="registerLink" class="link-button">Create an account</button>
         <p id="loginMessage" class="message"></p>
@@ -166,6 +184,6 @@
       </form>
     </section>
   </main>
-  <script src="/app.js?v=botanic-16"></script>
+  <script src="/app.js?v=botanic-17"></script>
 </body>
 </html>

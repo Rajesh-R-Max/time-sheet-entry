@@ -1453,6 +1453,24 @@ $('loginForm').addEventListener('submit', async event => {
   } catch (error) { showMessage('loginMessage', error.message); }
 });
 
+window.handleGoogleLogin = async function(response) {
+  if (!response || !response.credential) {
+    showMessage('loginMessage', 'Google sign-in response was empty.');
+    return;
+  }
+  showMessage('loginMessage', 'Signing in with Google...', false);
+  try {
+    const data = await api('/api/login/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential })
+    });
+    showApp(data.user);
+  } catch (error) {
+    showMessage('loginMessage', error.message || 'Google sign-in failed.');
+  }
+};
+
 $('forgotPassword').addEventListener('click', () => {
   $('loginForm').hidden = true;
   $('registerForm').hidden = true;

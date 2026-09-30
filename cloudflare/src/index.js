@@ -9,6 +9,7 @@ export default {
     try {
       if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
       if (url.pathname === '/api/login' && request.method === 'POST') return await login(request, env, cors);
+      if (url.pathname === '/api/login/google' && request.method === 'POST') return await loginWithGoogle(request, env, cors);
       if (url.pathname === '/api/register' && request.method === 'POST') return await register(request, env, cors);
       if (url.pathname === '/api/logout' && request.method === 'POST') return await logout(request, env, cors);
       if (url.pathname === '/api/session' && request.method === 'GET') return await session(request, env, cors);
@@ -63,6 +64,71 @@ async function login(request, env, headers) {
   const user = await env.DB.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').bind(username).first();
   if (!user || !(await verifyPassword(password, user.password_hash, user.password_salt, user.password_iterations))) {
     return json({ error: 'Invalid username or password.' }, 401, headers);
+  }
+
+  const token = randomToken(32);
+  const expires = new Date(Date.now() + SESSION_DAYS * 86400000).toISOString();
+  const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('x-forwarded-for') || 'Unknown';
+  const userAgent = request.headers.get('user-agent') || 'Unknown';
+
+  await env.DB.prepare(`
+    INSERT INTO sessions (id, user_id, ip_address, user_agent, last_active_at, expires_at)
+    VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ?)
+  `).bind(token, user.id, ip, userAgent, expires).run();
+
+  return new Response(JSON.stringify({ ok: true, user: publicUser(user) }), {
+    status: 200,
+    headers: { ...headers, 'Set-Cookie': cookie(token, SESSION_DAYS * 86400) }
+  });
+}
+
+async function loginWithGoogle(request, env, headers) {
+  const body = await request.json();
+  const credential = String(body.credential || '').trim();
+  if (!credential) return json({ error: 'Missing Google credential.' }, 400, headers);
+
+  // Validate the Google ID token via Google's tokeninfo API
+  const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+  if (!googleRes.ok) {
+    return json({ error: 'Google verification failed. Invalid token.' }, 401, headers);
+  }
+
+  const payload = await googleRes.json();
+  const email = String(payload.email || '').trim().toLowerCase();
+  const emailVerified = payload.email_verified === 'true' || payload.email_verified === true;
+  const name = String(payload.name || payload.given_name || email.split('@')[0]).trim();
+
+  if (!email || !emailVerified) {
+    return json({ error: 'Unverified or missing Google email address.' }, 400, headers);
+  }
+
+  // Find user by email (or username matching email prefix/whole email)
+  let user = await env.DB.prepare('SELECT * FROM users WHERE email = ? COLLATE NOCASE').bind(email).first();
+
+  if (!user) {
+    // If user does not exist by email, try matching username
+    const baseUsername = email.split('@')[0].toUpperCase().replace(/[^A-Z0-9._-]/g, '').slice(0, 30) || 'USER';
+    user = await env.DB.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE').bind(baseUsername).first();
+    
+    if (user && !user.email) {
+      // Link the email to this existing user
+      await env.DB.prepare('UPDATE users SET email = ? WHERE id = ?').bind(email, user.id).run();
+      user.email = email;
+    } else if (!user) {
+      // Auto-provision user account for this Google login
+      const dummyPass = await hashPassword(randomToken(24));
+      const dummyRec = await hashPassword(randomToken(24));
+      const res = await env.DB.prepare(`
+        INSERT INTO users (username, display_name, email, password_hash, password_salt, password_iterations, recovery_hash, recovery_salt, recovery_iterations, must_change_password, is_admin)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+      `).bind(baseUsername, name, email, dummyPass.hash, dummyPass.salt, dummyPass.iterations, dummyRec.hash, dummyRec.salt, dummyRec.iterations).run();
+
+      user = await env.DB.prepare('SELECT * FROM users WHERE id = ?').bind(res.meta.last_row_id).first();
+    }
+  }
+
+  if (!user) {
+    return json({ error: 'Unable to authenticate user with Google.' }, 401, headers);
   }
 
   const token = randomToken(32);
