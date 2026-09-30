@@ -1481,6 +1481,10 @@ $('logout').addEventListener('click', async () => {
   await api('/api/logout', { method: 'POST' }).catch(() => {});
   showLogin();
 });
+$('topSignoutBtn')?.addEventListener('click', async () => {
+  await api('/api/logout', { method: 'POST' }).catch(() => {});
+  showLogin();
+});
 
 $('changePassword').addEventListener('click', () => {
   $('passwordPanel').hidden = false;

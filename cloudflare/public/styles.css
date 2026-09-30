@@ -634,6 +634,32 @@ button.secondary:hover {
   box-shadow: var(--shadow-sm);
 }
 
+.top-signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.top-signout-btn:hover {
+  background: var(--danger-subtle);
+  border-color: var(--danger);
+  color: var(--danger);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
 .status {
   display: inline-flex;
   align-items: center;
