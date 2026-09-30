@@ -2865,6 +2865,20 @@ button.secondary:hover {
   font-size: 20px;
   font-weight: 700;
   color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.trainings-user-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: #f4f3fb;
+  color: #5d499c;
+  border: 1px solid #d4cde9;
 }
 
 .trainings-header-text p {
@@ -2873,8 +2887,14 @@ button.secondary:hover {
   color: var(--muted);
 }
 
+.trainings-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .trainings-count-badge {
-  padding: 4px 12px;
+  padding: 6px 14px;
   font-family: "Space Grotesk", sans-serif;
   font-size: 11px;
   font-weight: 700;
@@ -2882,11 +2902,131 @@ button.secondary:hover {
   background: #f4f3fb;
   color: #5d499c;
   border: 1px solid #d4cde9;
+  white-space: nowrap;
+}
+
+/* Add New Training Form */
+.add-training-form {
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--coral);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn .2s ease;
+}
+
+.add-training-form h3 {
+  margin: 0 0 14px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.add-training-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 16px;
+}
+
+.add-training-grid label {
+  margin: 0;
+}
+
+.add-training-grid .wide-field {
+  grid-column: span 2;
+}
+
+.add-training-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* KPI Summary Tiles for Trainings */
+.trainings-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tr-kpi {
+  padding: 12px 14px;
+  text-align: center;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.tr-kpi strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  display: block;
+}
+
+.tr-kpi span {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tr-kpi-total { border-top: 3px solid var(--ink); }
+.tr-kpi-total strong { color: var(--ink); }
+
+.tr-kpi-notstarted { border-top: 3px solid var(--muted); }
+.tr-kpi-notstarted strong { color: var(--muted); }
+
+.tr-kpi-inprogress { border-top: 3px solid var(--yellow); }
+.tr-kpi-inprogress strong { color: #a87913; }
+
+.tr-kpi-completed { border-top: 3px solid var(--mint-deep); }
+.tr-kpi-completed strong { color: var(--mint-deep); }
+
+/* Training Filter Buttons */
+.training-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.training-filter-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.training-filter-btn:hover {
+  background: var(--mint-subtle);
+  border-color: var(--mint);
+  color: var(--mint-deep);
+  transform: none;
+}
+
+.training-filter-btn.is-active {
+  background: var(--ink) !important;
+  color: #ffffff !important;
+  border-color: var(--ink) !important;
+  font-weight: 700;
 }
 
 .trainings-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 18px;
   flex-wrap: wrap;
@@ -2894,10 +3034,10 @@ button.secondary:hover {
 
 .training-search-input {
   flex: 1;
-  min-width: 260px;
-  min-height: 38px;
-  padding: 8px 16px;
-  font-size: 13px;
+  min-width: 240px;
+  min-height: 36px;
+  padding: 6px 16px;
+  font-size: 12px;
   border-radius: var(--radius-pill);
 }
 
@@ -2913,11 +3053,123 @@ button.secondary:hover {
   align-items: center;
   padding: 16px 18px;
   border: 1px solid var(--line);
-  border-left: 4px solid #7c68ba;
+  border-left: 4px solid var(--muted);
   border-radius: var(--radius-md);
   background: #ffffff;
   box-shadow: var(--shadow-sm);
   transition: all .15s ease;
+}
+
+.training-item.is-notstarted {
+  border-left-color: var(--muted);
+}
+
+.training-item.is-inprogress {
+  border-left-color: var(--yellow);
+  background: #fffefb;
+}
+
+.training-item.is-completed {
+  border-left-color: var(--mint-deep);
+  background: #fbfdfc;
+}
+
+.training-item.is-completed .training-title {
+  color: var(--ink);
+}
+
+.training-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.training-status-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.training-status-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+.training-status-select {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.training-status-select.is-notstarted {
+  background: var(--paper);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.training-status-select.is-inprogress {
+  background: var(--yellow-subtle);
+  color: #a87913;
+  border-color: var(--yellow);
+}
+
+.training-status-select.is-completed {
+  background: var(--mint-subtle);
+  color: var(--mint-deep);
+  border-color: var(--mint);
+}
+
+.btn-training-del {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.btn-training-del:hover {
+  background: var(--danger-subtle);
+  color: var(--danger);
+  border-color: rgba(217, 83, 79, 0.3);
+}
+
+@media (max-width: 800px) {
+  .add-training-grid {
+    grid-template-columns: 1fr;
+  }
+  .add-training-grid .wide-field {
+    grid-column: span 1;
+  }
+  .trainings-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .training-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .training-status-wrap {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .training-item:hover {

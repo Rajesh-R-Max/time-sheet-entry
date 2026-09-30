@@ -102,6 +102,7 @@ async function showApp(user) {
   if (wsUser) wsUser.textContent = `👤 ${displayName}`;
   if ($('usersTab')) $('usersTab').hidden = !currentUser.isAdmin;
   if ($('sessionsTab')) $('sessionsTab').hidden = !currentUser.isAdmin;
+  if ($('trainingsTab')) $('trainingsTab').hidden = String(user.username || '').toUpperCase() !== 'RAJESH';
   initScratchpad();
   await Promise.all([loadEntries(), loadProjectOptions(), loadOptionCatalog(), loadSidebarHolidays(), loadTasks(), loadReminders()]);
   if (!reportWeekStart) reportWeekStart = getMonday(new Date());
@@ -120,6 +121,7 @@ function showLogin() {
   $('passwordPanel').hidden = true;
   if ($('usersTab')) $('usersTab').hidden = true;
   if ($('sessionsTab')) $('sessionsTab').hidden = true;
+  if ($('trainingsTab')) $('trainingsTab').hidden = true;
   if ($('currentUser')) $('currentUser').textContent = '';
   if ($('workspaceUser')) $('workspaceUser').textContent = '';
 }
@@ -202,7 +204,7 @@ async function renderTab(view) {
   const rows = entries.slice(0, 12).map(entry => `<div class="data-row"><strong>${esc(entry.date)}</strong><span>${esc(entry.project)}</span><span>${esc(entry.hours)}h</span></div>`).join('');
   const reportHtml = view === 'report' ? buildWeeklyReport() : '';
   const content = {
-    day: buildDayView(),
+    day: buildDayView,
     tasks: `<div class="taskboard-shell tab-card tasks-card"><div class="tasks-head"><h2>Today's Tasks</h2><span class="board-stats" id="boardStats">0 of 0 done</span><button type="button" id="btnShowDone" class="btn-tiny" hidden>Show earlier completed</button><span class="task-date" id="taskDate">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></div><form id="taskForm" autocomplete="off" class="task-input-form"><div class="task-input-group"><input type="text" id="taskTitle" placeholder="Add a new task..." maxlength="200" required><select id="taskPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add Task</button></div><div id="taskMsg" class="msg"></div></form><div id="tasksBoard" class="tasks-board"></div></div>`,
     reminders: `<div class="tab-card reminder-card"><div class="reminder-head"><div><p class="eyebrow">REMINDERS &amp; SCHEDULE</p><h2>Reminders <span id="reminderStats" class="reminder-stats-badge"></span></h2></div><div class="reminder-head-actions"><button type="button" id="btnQuickAddReminder" class="btn btn-primary btn-sm">+ New Reminder</button></div></div><form id="reminderForm" autocomplete="off" class="reminder-input-form"><div class="reminder-form-grid"><input type="text" id="reminderTitle" placeholder="What do you need to remember?" maxlength="200" required><input type="date" id="reminderDueDate" class="date-input" required aria-label="Due date"><input type="time" id="reminderDueTime" class="time-input" aria-label="Due time (optional)"><select id="reminderPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add</button></div><div class="reminder-form-extra"><input type="text" id="reminderNotes" placeholder="Additional details or notes (optional)..." maxlength="300"></div><div id="reminderMsg" class="msg"></div></form><div class="reminder-filters"><button type="button" class="reminder-filter-btn is-active" data-filter="all">All Active</button><button type="button" class="reminder-filter-btn" data-filter="today">Due Today</button><button type="button" class="reminder-filter-btn" data-filter="upcoming">Upcoming</button><button type="button" class="reminder-filter-btn" data-filter="completed">Completed</button></div><div id="reminderList" class="reminder-list"></div></div>`,
     report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
@@ -252,10 +254,12 @@ async function renderTab(view) {
       </div>
     </div>`,
     options: `<div class="tab-card"><p class="eyebrow">ENTRY CATALOG</p><h2>Dropdown options</h2><p class="muted">Add values that will appear in the Entry form dropdowns.</p><div id="optionForms" class="option-forms"></div><div id="optionMessage" class="message"></div></div>`,
-    trainings: buildTrainingsView()
+    trainings: buildTrainingsView
   };
   if ((view === 'users' || view === 'sessions') && !currentUser?.isAdmin) return;
-  tabWorkspace.innerHTML = content[view] || content.day;
+  if (view === 'trainings' && String(currentUser?.username || '').toUpperCase() !== 'RAJESH') return;
+  const rawHtml = typeof content[view] === 'function' ? content[view]() : content[view];
+  tabWorkspace.innerHTML = rawHtml || (typeof content.day === 'function' ? content.day() : content.day);
   tabWorkspace.hidden = false;
   $('entryWorkspace').hidden = true;
   await loadManagementData(view);
@@ -282,87 +286,129 @@ async function renderTab(view) {
   }
 }
 
-const TRAINING_COURSES = [
+const DEFAULT_TRAINING_COURSES = [
   {
-    slNo: 1,
+    id: 'tr-1',
     code: 'MMI L4',
     name: 'MMI L4 - Maximo Manage Implementation Practitioner Level 4',
-    title: 'Maximo Manage Implementation Practitioner Level 4',
     category: 'Practitioner L4',
-    url: 'https://www.ibm.com/training/learning-path/maximo-manage-implementation-for-practitioner-level-4-684'
+    url: 'https://www.ibm.com/training/learning-path/maximo-manage-implementation-for-practitioner-level-4-684',
+    status: 'Not Started'
   },
   {
-    slNo: 2,
+    id: 'tr-2',
     code: 'EAM to Manage TS L4',
     name: 'EAM to Manage TS L4 - Maximo EAM to Manage Upgrade Technical Sales Level 4',
-    title: 'Maximo EAM to Manage Upgrade Technical Sales Level 4',
     category: 'Technical Sales L4',
-    url: 'https://www.ibm.com/training/learning-path/maximo-eam-to-maximo-manage-upgrade-for-technical-sales-level-4-789'
+    url: 'https://www.ibm.com/training/learning-path/maximo-eam-to-maximo-manage-upgrade-for-technical-sales-level-4-789',
+    status: 'Not Started'
   },
   {
-    slNo: 3,
+    id: 'tr-3',
     code: 'Monitor TS L4',
     name: 'Monitor TS L4 - Maximo Monitor Technical Sales Level 4',
-    title: 'Maximo Monitor Technical Sales Level 4',
     category: 'Technical Sales L4',
-    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-monitor-for-technical-sales-level-4-788'
+    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-monitor-for-technical-sales-level-4-788',
+    status: 'Not Started'
   },
   {
-    slNo: 4,
+    id: 'tr-4',
     code: 'MVI TS L4',
     name: 'MVI TS L4 - Maximo Visual Inspection Technical Sales Level 4',
-    title: 'Maximo Visual Inspection Technical Sales Level 4',
     category: 'Technical Sales L4',
-    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-visual-inspection-for-technical-sales-level-4-787'
+    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-visual-inspection-for-technical-sales-level-4-787',
+    status: 'Not Started'
   },
   {
-    slNo: 5,
+    id: 'tr-5',
     code: 'MAS_Associate',
     name: 'MAS_Associate - Maximo Application Suite - Associate',
-    title: 'Maximo Application Suite - Associate',
     category: 'Associate',
-    url: 'https://www.ibm.com/training/learning-path/maximo-application-suite-associate-1069'
+    url: 'https://www.ibm.com/training/learning-path/maximo-application-suite-associate-1069',
+    status: 'Not Started'
   },
   {
-    slNo: 6,
+    id: 'tr-6',
     code: 'Manage v9.0 WM',
     name: 'Manage v9.0 WM - IBM Certified Maximo Manage v9 Work Management - Associate',
-    title: 'IBM Certified Maximo Manage v9 Work Management - Associate',
     category: 'Certification',
-    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v9-work-management-associate-C9009200'
+    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v9-work-management-associate-C9009200',
+    status: 'Not Started'
   },
   {
-    slNo: 7,
+    id: 'tr-7',
     code: 'Manage v9.0 IM',
     name: 'Manage v9.0 IM - IBM Certified Maximo Manage v9.1 Inventory Management - Associate',
-    title: 'IBM Certified Maximo Manage v9.1 Inventory Management - Associate',
     category: 'Certification',
-    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v91-inventory-management-associate-C9009300'
+    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v91-inventory-management-associate-C9009300',
+    status: 'Not Started'
   }
 ];
 
+let trainingFilter = 'all';
+
+function getStoredTrainings() {
+  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_RAJESH';
+  try {
+    const raw = localStorage.getItem(userKey);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return DEFAULT_TRAINING_COURSES;
+}
+
+function saveStoredTrainings(list) {
+  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_RAJESH';
+  try {
+    localStorage.setItem(userKey, JSON.stringify(list));
+  } catch (e) {}
+}
+
 function renderTrainingItems(filterQuery = '') {
+  const list = getStoredTrainings();
   const q = filterQuery.toLowerCase().trim();
-  const filtered = q
-    ? TRAINING_COURSES.filter(c =>
-        c.name.toLowerCase().includes(q) ||
-        c.code.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q) ||
-        c.url.toLowerCase().includes(q)
-      )
-    : TRAINING_COURSES;
+  
+  const filtered = list.filter(c => {
+    const matchesFilter =
+      trainingFilter === 'all' ? true :
+      trainingFilter === 'not-started' ? (c.status === 'Not Started' || !c.status) :
+      trainingFilter === 'in-progress' ? c.status === 'In Progress' :
+      trainingFilter === 'completed' ? c.status === 'Completed' : true;
+      
+    const matchesQuery = q
+      ? (c.name || '').toLowerCase().includes(q) ||
+        (c.code || '').toLowerCase().includes(q) ||
+        (c.category || '').toLowerCase().includes(q) ||
+        (c.url || '').toLowerCase().includes(q)
+      : true;
+
+    return matchesFilter && matchesQuery;
+  });
 
   if (!filtered.length) {
-    return `<div class="empty">No training courses match "${esc(filterQuery)}".</div>`;
+    return `<div class="empty">No training courses found for this view.</div>`;
   }
 
-  return filtered.map(item => `
-    <article class="training-item">
-      <div class="training-num" title="Sl No. ${item.slNo}">#${item.slNo}</div>
+  return filtered.map((item, idx) => {
+    const status = item.status || 'Not Started';
+    const statusClass =
+      status === 'Completed' ? 'is-completed' :
+      status === 'In Progress' ? 'is-inprogress' : 'is-notstarted';
+
+    return `
+    <article class="training-item ${statusClass}" data-training-id="${esc(item.id)}">
+      <div class="training-num" title="Item #${idx + 1}">#${idx + 1}</div>
       <div class="training-main">
         <div class="training-top-row">
-          <span class="training-code">${esc(item.code)}</span>
-          <span class="training-cat">${esc(item.category)}</span>
+          <span class="training-code">${esc(item.code || 'Training')}</span>
+          <span class="training-cat">${esc(item.category || 'General')}</span>
+          <div class="training-status-wrap">
+            <span class="training-status-label">Status:</span>
+            <select class="training-status-select ${statusClass}" data-training-id="${esc(item.id)}" aria-label="Status for ${esc(item.name)}">
+              <option value="Not Started"${status === 'Not Started' ? ' selected' : ''}>⏳ Not Started</option>
+              <option value="In Progress"${status === 'In Progress' ? ' selected' : ''}>🔄 In Progress</option>
+              <option value="Completed"${status === 'Completed' ? ' selected' : ''}>✅ Completed</option>
+            </select>
+          </div>
         </div>
         <div class="training-title">${esc(item.name)}</div>
         <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" class="training-url-preview" title="${esc(item.url)}">
@@ -376,30 +422,123 @@ function renderTrainingItems(filterQuery = '') {
         <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-training-open" title="Open course link in new tab">
           ↗ Open
         </a>
+        <button type="button" class="btn-training-del" data-del-training="${esc(item.id)}" title="Delete training">
+          &times;
+        </button>
       </div>
-    </article>
-  `).join('');
+    </article>`;
+  }).join('');
 }
 
 function buildTrainingsView() {
+  const list = getStoredTrainings();
+  const notStartedCount = list.filter(c => (c.status === 'Not Started' || !c.status)).length;
+  const inProgressCount = list.filter(c => c.status === 'In Progress').length;
+  const completedCount = list.filter(c => c.status === 'Completed').length;
+
   return `
     <div class="tab-card trainings-card">
       <div class="trainings-header">
         <div class="trainings-header-text">
           <p class="eyebrow">IBM CERTIFICATIONS &amp; LEARNING PATHS</p>
-          <h2>Trainings &amp; Certifications</h2>
-          <p>Direct learning paths, practitioner credentials, and associate certifications for IBM Maximo.</p>
+          <h2>Trainings &amp; Certifications <span class="trainings-user-badge">User: ${esc(currentUser?.username || 'RAJESH')}</span></h2>
+          <p>Track your certification progress, status, and direct learning paths for IBM Maximo.</p>
         </div>
-        <span class="trainings-count-badge">${TRAINING_COURSES.length} Resources</span>
+        <div class="trainings-header-actions">
+          <button type="button" id="btnToggleAddTraining" class="btn btn-primary btn-sm">+ Add Training</button>
+          <span class="trainings-count-badge" id="trainingsCountBadge">${list.length} Resources</span>
+        </div>
       </div>
+
+      <!-- Add New Training Form (Collapsible/Toggleable) -->
+      <form id="addTrainingForm" class="add-training-form" hidden>
+        <h3>Add New Training or Certification</h3>
+        <div class="add-training-grid">
+          <label>Course / Certification Name
+            <input type="text" id="newTrainingName" placeholder="e.g. Maximo Asset Management Fundamentals" required maxlength="200">
+          </label>
+          <label>Code / Short Name
+            <input type="text" id="newTrainingCode" placeholder="e.g. MAM L1" required maxlength="50">
+          </label>
+          <label>Category
+            <input type="text" id="newTrainingCat" placeholder="e.g. Practitioner, Certification, Associate" maxlength="50">
+          </label>
+          <label>Initial Status
+            <select id="newTrainingStatus">
+              <option value="Not Started" selected>⏳ Not Started</option>
+              <option value="In Progress">🔄 In Progress</option>
+              <option value="Completed">✅ Completed</option>
+            </select>
+          </label>
+          <label class="wide-field">Course URL / Link
+            <input type="url" id="newTrainingUrl" placeholder="https://www.ibm.com/training/..." required maxlength="500">
+          </label>
+        </div>
+        <div class="add-training-actions">
+          <button type="button" id="btnCancelAddTraining" class="btn secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">+ Save Training</button>
+        </div>
+        <div id="addTrainingMsg" class="msg"></div>
+      </form>
+
+      <!-- KPI Summary Tiles -->
+      <div class="trainings-kpis">
+        <div class="tr-kpi tr-kpi-total">
+          <strong id="kpiTotalTrainings">${list.length}</strong>
+          <span>TOTAL COURSES</span>
+        </div>
+        <div class="tr-kpi tr-kpi-notstarted">
+          <strong id="kpiNotStarted">${notStartedCount}</strong>
+          <span>NOT STARTED</span>
+        </div>
+        <div class="tr-kpi tr-kpi-inprogress">
+          <strong id="kpiInProgress">${inProgressCount}</strong>
+          <span>IN PROGRESS</span>
+        </div>
+        <div class="tr-kpi tr-kpi-completed">
+          <strong id="kpiCompleted">${completedCount}</strong>
+          <span>COMPLETED</span>
+        </div>
+      </div>
+
+      <!-- Filter Buttons & Search -->
       <div class="trainings-toolbar">
-        <input type="text" id="trainingSearch" class="training-search-input" placeholder="🔍 Search trainings by name, level, or code..." aria-label="Search trainings">
+        <div class="training-filters">
+          <button type="button" class="training-filter-btn ${trainingFilter === 'all' ? 'is-active' : ''}" data-tfilter="all">All (${list.length})</button>
+          <button type="button" class="training-filter-btn ${trainingFilter === 'not-started' ? 'is-active' : ''}" data-tfilter="not-started">⏳ Not Started (${notStartedCount})</button>
+          <button type="button" class="training-filter-btn ${trainingFilter === 'in-progress' ? 'is-active' : ''}" data-tfilter="in-progress">🔄 In Progress (${inProgressCount})</button>
+          <button type="button" class="training-filter-btn ${trainingFilter === 'completed' ? 'is-active' : ''}" data-tfilter="completed">✅ Completed (${completedCount})</button>
+        </div>
+        <input type="text" id="trainingSearch" class="training-search-input" placeholder="🔍 Search trainings by name, code, category, or URL..." aria-label="Search trainings">
       </div>
+
       <div id="trainingList" class="trainings-list">
         ${renderTrainingItems('')}
       </div>
     </div>
   `;
+}
+
+function updateTrainingKpisAndCounts() {
+  const list = getStoredTrainings();
+  const notStartedCount = list.filter(c => (c.status === 'Not Started' || !c.status)).length;
+  const inProgressCount = list.filter(c => c.status === 'In Progress').length;
+  const completedCount = list.filter(c => c.status === 'Completed').length;
+
+  if ($('kpiTotalTrainings')) $('kpiTotalTrainings').textContent = list.length;
+  if ($('kpiNotStarted')) $('kpiNotStarted').textContent = notStartedCount;
+  if ($('kpiInProgress')) $('kpiInProgress').textContent = inProgressCount;
+  if ($('kpiCompleted')) $('kpiCompleted').textContent = completedCount;
+  if ($('trainingsCountBadge')) $('trainingsCountBadge').textContent = `${list.length} Resources`;
+
+  const btnAll = document.querySelector('[data-tfilter="all"]');
+  if (btnAll) btnAll.textContent = `All (${list.length})`;
+  const btnNotStarted = document.querySelector('[data-tfilter="not-started"]');
+  if (btnNotStarted) btnNotStarted.textContent = `⏳ Not Started (${notStartedCount})`;
+  const btnInProgress = document.querySelector('[data-tfilter="in-progress"]');
+  if (btnInProgress) btnInProgress.textContent = `🔄 In Progress (${inProgressCount})`;
+  const btnCompleted = document.querySelector('[data-tfilter="completed"]');
+  if (btnCompleted) btnCompleted.textContent = `✅ Completed (${completedCount})`;
 }
 
 function wireTrainingActionBtns() {
@@ -429,6 +568,40 @@ function wireTrainingActionBtns() {
       } catch (err) {
         console.error('Failed to copy training link:', err);
       }
+    });
+  });
+
+  document.querySelectorAll('.training-status-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const id = sel.dataset.trainingId;
+      const newStatus = sel.value;
+      const list = getStoredTrainings();
+      const item = list.find(t => t.id === id);
+      if (item) {
+        item.status = newStatus;
+        saveStoredTrainings(list);
+        const query = $('trainingSearch') ? $('trainingSearch').value : '';
+        const listEl = $('trainingList');
+        if (listEl) listEl.innerHTML = renderTrainingItems(query);
+        updateTrainingKpisAndCounts();
+        wireTrainingActionBtns();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-del-training]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.delTraining;
+      const list = getStoredTrainings();
+      const item = list.find(t => t.id === id);
+      if (!item || !confirm(`Delete "${item.name}" from your trainings?`)) return;
+      const updated = list.filter(t => t.id !== id);
+      saveStoredTrainings(updated);
+      const query = $('trainingSearch') ? $('trainingSearch').value : '';
+      const listEl = $('trainingList');
+      if (listEl) listEl.innerHTML = renderTrainingItems(query);
+      updateTrainingKpisAndCounts();
+      wireTrainingActionBtns();
     });
   });
 }
@@ -1167,6 +1340,75 @@ async function loadManagementData(view) {
         wireTrainingActionBtns();
       });
     }
+
+    document.querySelectorAll('.training-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        trainingFilter = btn.dataset.tfilter;
+        document.querySelectorAll('.training-filter-btn').forEach(b => b.classList.toggle('is-active', b === btn));
+        const query = searchInp ? searchInp.value.trim().toLowerCase() : '';
+        const listEl = $('trainingList');
+        if (listEl) listEl.innerHTML = renderTrainingItems(query);
+        wireTrainingActionBtns();
+      });
+    });
+
+    const btnToggleAdd = $('btnToggleAddTraining');
+    const addForm = $('addTrainingForm');
+    const btnCancelAdd = $('btnCancelAddTraining');
+
+    if (btnToggleAdd && addForm) {
+      btnToggleAdd.addEventListener('click', () => {
+        addForm.hidden = !addForm.hidden;
+        if (!addForm.hidden) {
+          $('newTrainingName')?.focus();
+        }
+      });
+    }
+
+    if (btnCancelAdd && addForm) {
+      btnCancelAdd.addEventListener('click', () => {
+        addForm.hidden = true;
+        addForm.reset();
+        const msg = $('addTrainingMsg');
+        if (msg) msg.textContent = '';
+      });
+    }
+
+    if (addForm) {
+      addForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const name = ($('newTrainingName')?.value || '').trim();
+        const code = ($('newTrainingCode')?.value || '').trim();
+        const category = ($('newTrainingCat')?.value || '').trim() || 'General';
+        const status = $('newTrainingStatus')?.value || 'Not Started';
+        const url = ($('newTrainingUrl')?.value || '').trim();
+
+        if (!name || !code || !url) return;
+
+        const list = getStoredTrainings();
+        const newTraining = {
+          id: 'tr-' + Date.now(),
+          code,
+          name,
+          category,
+          status,
+          url
+        };
+
+        list.push(newTraining);
+        saveStoredTrainings(list);
+
+        addForm.reset();
+        addForm.hidden = true;
+
+        const query = searchInp ? searchInp.value.trim().toLowerCase() : '';
+        const listEl = $('trainingList');
+        if (listEl) listEl.innerHTML = renderTrainingItems(query);
+        updateTrainingKpisAndCounts();
+        wireTrainingActionBtns();
+      });
+    }
+
     wireTrainingActionBtns();
   }
 }
