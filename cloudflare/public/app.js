@@ -102,6 +102,7 @@ async function showApp(user) {
   if (wsUser) wsUser.textContent = `👤 ${displayName}`;
   if ($('usersTab')) $('usersTab').hidden = !currentUser.isAdmin;
   if ($('sessionsTab')) $('sessionsTab').hidden = !currentUser.isAdmin;
+  if ($('date') && !$('date').value) $('date').value = isoDate(new Date());
   initScratchpad();
   await Promise.all([loadEntries(), loadProjectOptions(), loadOptionCatalog(), loadSidebarHolidays(), loadTasks(), loadReminders()]);
   if (!reportWeekStart) reportWeekStart = getMonday(new Date());
@@ -1433,6 +1434,9 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
   if (view === 'entry') {
     $('entryWorkspace').hidden = false;
     $('tabWorkspace').hidden = true;
+    if (!editingEntryId && !$('date').value) {
+      $('date').value = isoDate(new Date());
+    }
   } else {
     $('entryWorkspace').hidden = true;
     $('tabWorkspace').hidden = false;
@@ -1512,7 +1516,10 @@ async function saveEntry(keepValues) {
     await api(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (editingEntryId) cancelEntryEdit();
     else if (keepValues) { $('hours').value = ''; $('notes').value = ''; $('ticket').value = ''; }
-    else $('entryForm').reset();
+    else {
+      $('entryForm').reset();
+      $('date').value = isoDate(new Date());
+    }
     showMessage('entryMessage', 'Entry saved.', false);
     loadEntries();
   } catch (error) { showMessage('entryMessage', error.message); }
@@ -1579,7 +1586,7 @@ function loadEntryIntoForm(id, edit) {
   if (!entry) return;
   const activeTab = document.querySelector('.tab.active');
   if (activeTab?.dataset.view !== 'entry') document.querySelector('.tab[data-view="entry"]')?.click();
-  $('date').value = entry.date || '';
+  $('date').value = edit ? (entry.date || isoDate(new Date())) : isoDate(new Date());
   if (entry.project && !Array.from($('project').options).some(opt => opt.value === entry.project)) {
     const opt = document.createElement('option');
     opt.value = entry.project;
@@ -1606,6 +1613,7 @@ function loadEntryIntoForm(id, edit) {
 function cancelEntryEdit() {
   editingEntryId = null;
   $('entryForm').reset();
+  $('date').value = isoDate(new Date());
   $('saveEntry').textContent = 'Add entry';
   $('cancelEdit').hidden = true;
 }
