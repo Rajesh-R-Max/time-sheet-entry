@@ -668,17 +668,41 @@ button.secondary:hover {
 
 .entry-actions button {
   min-width: 110px;
-  padding: 9px 18px;
-  font-size: 12px;
+  padding: 10px 20px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: 0;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(237, 113, 87, 0.25);
+  transition: all .15s ease;
 }
 
 #addKeep, #saveEntry {
   background: var(--coral);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 #addKeep:hover, #saveEntry:hover {
   background: var(--coral-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(237, 113, 87, 0.32);
+}
+
+.entry-actions button.secondary {
+  background: #ffffff;
+  color: var(--ink) !important;
+  border: 1px solid var(--line);
+  box-shadow: none;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+}
+
+.entry-actions button.secondary:hover {
+  background: var(--mint-subtle);
+  border-color: var(--mint-deep);
+  transform: none;
 }
 
 /* Scratchpad Section */
