@@ -1156,15 +1156,61 @@ button.secondary:hover {
 .card-task {
   background: #ffffff;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--coral);
-  border-radius: var(--radius-sm);
-  padding: 10px;
+  border-left: 4px solid var(--coral);
+  border-radius: var(--radius-md);
+  padding: 12px;
   box-shadow: var(--shadow-sm);
+  transition: all .15s ease;
+  user-select: none;
+}
+
+.card-task:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card-task.p1-edge { border-left-color: var(--danger); }
+.card-task.p2-edge { border-left-color: var(--coral); }
+.card-task.p3-edge { border-left-color: var(--yellow); }
+.card-task.p4-edge { border-left-color: var(--ink); }
+.card-task.p5-edge { border-left-color: var(--muted); }
+
+.card-task.is-complete {
+  opacity: 0.7;
+  background: #fbfdfc;
+  border-left-color: var(--mint-deep) !important;
+}
+
+.card-task.is-complete .ct-title {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.card-task.is-dragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+}
+
+.card-task.is-editing {
+  border-left-color: var(--coral);
+}
+
+.ct-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.ct-spacer {
+  flex: 1;
 }
 
 .prio-badge {
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
+  font-family: "Space Grotesk", sans-serif;
   font-size: 9px;
   font-weight: 700;
   color: #ffffff;
@@ -1176,12 +1222,142 @@ button.secondary:hover {
 .prio-badge.p4 { background: var(--ink); }
 .prio-badge.p5 { background: var(--muted); }
 
+.prio-pick {
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  min-height: auto;
+}
+
+.seq-pick {
+  width: 38px;
+  padding: 2px 4px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  min-height: auto;
+}
+
+.ct-created {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--line-subtle);
+}
+
+.ct-created.is-carried {
+  color: var(--coral);
+  background: var(--coral-subtle);
+  border: 1px dashed var(--coral);
+  font-weight: 700;
+}
+
+.ct-created.is-done {
+  color: var(--mint-deep);
+  background: var(--mint-subtle);
+  border: 1px solid var(--mint);
+  font-weight: 700;
+}
+
+.edit-task, .del-task {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: all .15s ease;
+}
+
+.edit-task:hover {
+  background: var(--mint-subtle);
+  color: var(--mint-deep);
+  border-color: var(--mint);
+  transform: none;
+}
+
+.del-task:hover {
+  background: var(--danger-subtle);
+  color: var(--danger);
+  border-color: rgba(217, 83, 79, 0.3);
+  transform: none;
+}
+
 .ct-title {
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--ink);
+  font-weight: 600;
   word-break: break-word;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.ct-edit {
+  margin-bottom: 10px;
+}
+
+.task-edit-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--coral);
+}
+
+.ct-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ct-move {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.move-btn {
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: none;
+  transition: all .15s ease;
+}
+
+.move-btn:hover {
+  background: var(--mint-subtle);
+  border-color: var(--mint-deep);
+  color: var(--mint-deep);
+  transform: none;
 }
 
 /* Reminders View */
