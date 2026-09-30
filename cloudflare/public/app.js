@@ -102,7 +102,6 @@ async function showApp(user) {
   if (wsUser) wsUser.textContent = `👤 ${displayName}`;
   if ($('usersTab')) $('usersTab').hidden = !currentUser.isAdmin;
   if ($('sessionsTab')) $('sessionsTab').hidden = !currentUser.isAdmin;
-  if ($('trainingsTab')) $('trainingsTab').hidden = String(user.username || '').toUpperCase() !== 'RAJESH';
   initScratchpad();
   await Promise.all([loadEntries(), loadProjectOptions(), loadOptionCatalog(), loadSidebarHolidays(), loadTasks(), loadReminders()]);
   if (!reportWeekStart) reportWeekStart = getMonday(new Date());
@@ -121,7 +120,6 @@ function showLogin() {
   $('passwordPanel').hidden = true;
   if ($('usersTab')) $('usersTab').hidden = true;
   if ($('sessionsTab')) $('sessionsTab').hidden = true;
-  if ($('trainingsTab')) $('trainingsTab').hidden = true;
   if ($('currentUser')) $('currentUser').textContent = '';
   if ($('workspaceUser')) $('workspaceUser').textContent = '';
 }
@@ -257,7 +255,6 @@ async function renderTab(view) {
     trainings: buildTrainingsView
   };
   if ((view === 'users' || view === 'sessions') && !currentUser?.isAdmin) return;
-  if (view === 'trainings' && String(currentUser?.username || '').toUpperCase() !== 'RAJESH') return;
   const rawHtml = typeof content[view] === 'function' ? content[view]() : content[view];
   tabWorkspace.innerHTML = rawHtml || (typeof content.day === 'function' ? content.day() : content.day);
   tabWorkspace.hidden = false;
@@ -348,7 +345,7 @@ const DEFAULT_TRAINING_COURSES = [
 let trainingFilter = 'all';
 
 function getStoredTrainings() {
-  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_RAJESH';
+  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_DEFAULT';
   try {
     const raw = localStorage.getItem(userKey);
     if (raw) return JSON.parse(raw);
@@ -357,7 +354,7 @@ function getStoredTrainings() {
 }
 
 function saveStoredTrainings(list) {
-  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_RAJESH';
+  const userKey = currentUser ? `trainings_${currentUser.username.toUpperCase()}` : 'trainings_DEFAULT';
   try {
     localStorage.setItem(userKey, JSON.stringify(list));
   } catch (e) {}
@@ -435,13 +432,14 @@ function buildTrainingsView() {
   const notStartedCount = list.filter(c => (c.status === 'Not Started' || !c.status)).length;
   const inProgressCount = list.filter(c => c.status === 'In Progress').length;
   const completedCount = list.filter(c => c.status === 'Completed').length;
+  const userName = currentUser?.name || currentUser?.username || 'User';
 
   return `
     <div class="tab-card trainings-card">
       <div class="trainings-header">
         <div class="trainings-header-text">
           <p class="eyebrow">IBM CERTIFICATIONS &amp; LEARNING PATHS</p>
-          <h2>Trainings &amp; Certifications <span class="trainings-user-badge">User: ${esc(currentUser?.username || 'RAJESH')}</span></h2>
+          <h2>Trainings &amp; Certifications <span class="trainings-user-badge">${esc(userName)}</span></h2>
           <p>Track your certification progress, status, and direct learning paths for IBM Maximo.</p>
         </div>
         <div class="trainings-header-actions">
