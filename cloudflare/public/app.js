@@ -251,7 +251,8 @@ async function renderTab(view) {
         </div>
       </div>
     </div>`,
-    options: `<div class="tab-card"><p class="eyebrow">ENTRY CATALOG</p><h2>Dropdown options</h2><p class="muted">Add values that will appear in the Entry form dropdowns.</p><div id="optionForms" class="option-forms"></div><div id="optionMessage" class="message"></div></div>`
+    options: `<div class="tab-card"><p class="eyebrow">ENTRY CATALOG</p><h2>Dropdown options</h2><p class="muted">Add values that will appear in the Entry form dropdowns.</p><div id="optionForms" class="option-forms"></div><div id="optionMessage" class="message"></div></div>`,
+    trainings: buildTrainingsView()
   };
   if ((view === 'users' || view === 'sessions') && !currentUser?.isAdmin) return;
   tabWorkspace.innerHTML = content[view] || content.day;
@@ -279,6 +280,157 @@ async function renderTab(view) {
     $('tabWorkspace').querySelectorAll('[data-edit]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.edit), true)));
     $('tabWorkspace').querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', () => deleteEntry(Number(button.dataset.delete))));
   }
+}
+
+const TRAINING_COURSES = [
+  {
+    slNo: 1,
+    code: 'MMI L4',
+    name: 'MMI L4 - Maximo Manage Implementation Practitioner Level 4',
+    title: 'Maximo Manage Implementation Practitioner Level 4',
+    category: 'Practitioner L4',
+    url: 'https://www.ibm.com/training/learning-path/maximo-manage-implementation-for-practitioner-level-4-684'
+  },
+  {
+    slNo: 2,
+    code: 'EAM to Manage TS L4',
+    name: 'EAM to Manage TS L4 - Maximo EAM to Manage Upgrade Technical Sales Level 4',
+    title: 'Maximo EAM to Manage Upgrade Technical Sales Level 4',
+    category: 'Technical Sales L4',
+    url: 'https://www.ibm.com/training/learning-path/maximo-eam-to-maximo-manage-upgrade-for-technical-sales-level-4-789'
+  },
+  {
+    slNo: 3,
+    code: 'Monitor TS L4',
+    name: 'Monitor TS L4 - Maximo Monitor Technical Sales Level 4',
+    title: 'Maximo Monitor Technical Sales Level 4',
+    category: 'Technical Sales L4',
+    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-monitor-for-technical-sales-level-4-788'
+  },
+  {
+    slNo: 4,
+    code: 'MVI TS L4',
+    name: 'MVI TS L4 - Maximo Visual Inspection Technical Sales Level 4',
+    title: 'Maximo Visual Inspection Technical Sales Level 4',
+    category: 'Technical Sales L4',
+    url: 'https://www.ibm.com/training/learning-path/ibm-maximo-visual-inspection-for-technical-sales-level-4-787'
+  },
+  {
+    slNo: 5,
+    code: 'MAS_Associate',
+    name: 'MAS_Associate - Maximo Application Suite - Associate',
+    title: 'Maximo Application Suite - Associate',
+    category: 'Associate',
+    url: 'https://www.ibm.com/training/learning-path/maximo-application-suite-associate-1069'
+  },
+  {
+    slNo: 6,
+    code: 'Manage v9.0 WM',
+    name: 'Manage v9.0 WM - IBM Certified Maximo Manage v9 Work Management - Associate',
+    title: 'IBM Certified Maximo Manage v9 Work Management - Associate',
+    category: 'Certification',
+    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v9-work-management-associate-C9009200'
+  },
+  {
+    slNo: 7,
+    code: 'Manage v9.0 IM',
+    name: 'Manage v9.0 IM - IBM Certified Maximo Manage v9.1 Inventory Management - Associate',
+    title: 'IBM Certified Maximo Manage v9.1 Inventory Management - Associate',
+    category: 'Certification',
+    url: 'https://www.ibm.com/training/certification/ibm-certified-maximo-manage-v91-inventory-management-associate-C9009300'
+  }
+];
+
+function renderTrainingItems(filterQuery = '') {
+  const q = filterQuery.toLowerCase().trim();
+  const filtered = q
+    ? TRAINING_COURSES.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.code.toLowerCase().includes(q) ||
+        c.category.toLowerCase().includes(q) ||
+        c.url.toLowerCase().includes(q)
+      )
+    : TRAINING_COURSES;
+
+  if (!filtered.length) {
+    return `<div class="empty">No training courses match "${esc(filterQuery)}".</div>`;
+  }
+
+  return filtered.map(item => `
+    <article class="training-item">
+      <div class="training-num" title="Sl No. ${item.slNo}">#${item.slNo}</div>
+      <div class="training-main">
+        <div class="training-top-row">
+          <span class="training-code">${esc(item.code)}</span>
+          <span class="training-cat">${esc(item.category)}</span>
+        </div>
+        <div class="training-title">${esc(item.name)}</div>
+        <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" class="training-url-preview" title="${esc(item.url)}">
+          🔗 ${esc(item.url)}
+        </a>
+      </div>
+      <div class="training-actions">
+        <button type="button" class="btn-training-copy" data-copy-url="${esc(item.url)}" title="Copy link to clipboard">
+          📋 Copy Link
+        </button>
+        <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-training-open" title="Open course link in new tab">
+          ↗ Open
+        </a>
+      </div>
+    </article>
+  `).join('');
+}
+
+function buildTrainingsView() {
+  return `
+    <div class="tab-card trainings-card">
+      <div class="trainings-header">
+        <div class="trainings-header-text">
+          <p class="eyebrow">IBM CERTIFICATIONS &amp; LEARNING PATHS</p>
+          <h2>Trainings &amp; Certifications</h2>
+          <p>Direct learning paths, practitioner credentials, and associate certifications for IBM Maximo.</p>
+        </div>
+        <span class="trainings-count-badge">${TRAINING_COURSES.length} Resources</span>
+      </div>
+      <div class="trainings-toolbar">
+        <input type="text" id="trainingSearch" class="training-search-input" placeholder="🔍 Search trainings by name, level, or code..." aria-label="Search trainings">
+      </div>
+      <div id="trainingList" class="trainings-list">
+        ${renderTrainingItems('')}
+      </div>
+    </div>
+  `;
+}
+
+function wireTrainingActionBtns() {
+  document.querySelectorAll('[data-copy-url]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const url = btn.dataset.copyUrl;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = url;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✓ Copied!';
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.classList.remove('is-copied');
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy training link:', err);
+      }
+    });
+  });
 }
 
 function shiftDate(value, days) {
@@ -1005,6 +1157,18 @@ async function loadManagementData(view) {
     document.querySelectorAll('.option-form').forEach(form => form.addEventListener('submit', async event => { event.preventDefault(); try { await api('/api/options', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listName: form.dataset.list, value: form.elements.value.value }) }); $('optionMessage').textContent = 'Option saved.'; renderTab('options'); loadOptionCatalog(); } catch (error) { $('optionMessage').textContent = error.message; } }));
     document.querySelectorAll('.option-value-delete').forEach(button => button.addEventListener('click', async () => { const listName = button.dataset.list; const value = button.dataset.value; if (!confirm(`Delete ${value} from ${listName}? Existing entries will not change.`)) return; try { await api('/api/options/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listName, value }) }); $('optionMessage').textContent = 'Option deleted.'; renderTab('options'); loadOptionCatalog(); } catch (error) { $('optionMessage').textContent = error.message; } }));
   }
+  if (view === 'trainings') {
+    const searchInp = $('trainingSearch');
+    if (searchInp) {
+      searchInp.addEventListener('input', () => {
+        const query = searchInp.value.trim().toLowerCase();
+        const listEl = $('trainingList');
+        if (listEl) listEl.innerHTML = renderTrainingItems(query);
+        wireTrainingActionBtns();
+      });
+    }
+    wireTrainingActionBtns();
+  }
 }
 
 document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
@@ -1019,6 +1183,7 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
     projects: "Projects",
     team: "Team activities",
     holidays: "Holidays",
+    trainings: "Trainings & Certifications",
     sessions: "Active Sessions",
     users: "User Management",
     options: "Dropdown options"
