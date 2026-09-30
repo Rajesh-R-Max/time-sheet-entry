@@ -1477,7 +1477,7 @@ $('forgotForm').addEventListener('submit', event => {
   api('/api/password/recover', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('forgotUsername').value, email: $('forgotEmail').value, recoveryPassword: $('forgotRecovery').value, newPassword: $('forgotNewPassword').value }) }).then(data => { $('forgotMessage').textContent = data.message; $('forgotForm').reset(); }).catch(error => { $('forgotMessage').textContent = error.message; });
 });
 
-$('logout').addEventListener('click', async () => {
+$('logout')?.addEventListener('click', async () => {
   await api('/api/logout', { method: 'POST' }).catch(() => {});
   showLogin();
 });
