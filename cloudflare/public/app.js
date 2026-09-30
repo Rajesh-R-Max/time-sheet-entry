@@ -129,8 +129,8 @@ async function loadEntries() {
     const data = await api('/api/entries');
     entries = data.entries || [];
     $('entryTotal').textContent = entries.length;
-    $('todayTotal').textContent = `${entries.filter(entry => entry.date === new Date().toISOString().slice(0, 10)).reduce((total, entry) => total + Number(entry.hours || 0), 0).toFixed(2)}h`;
-    const monday = getMonday(new Date()).toISOString().slice(0, 10);
+    $('todayTotal').textContent = `${entries.filter(entry => entry.date === isoDate(new Date())).reduce((total, entry) => total + Number(entry.hours || 0), 0).toFixed(2)}h`;
+    const monday = isoDate(getMonday(new Date()));
     const weekEnd = shiftDate(monday, 6);
     $('weekTotal').textContent = `${entries.filter(entry => entry.date >= monday && entry.date <= weekEnd).reduce((total, entry) => total + Number(entry.hours || 0), 0).toFixed(2)}h`;
     const groups = new Map();
@@ -272,7 +272,7 @@ async function renderTab(view) {
   if (view === 'day') {
     $('dayPrev').addEventListener('click', () => { dayDate = shiftDate(dayDate, -1); renderTab('day'); });
     $('dayNext').addEventListener('click', () => { dayDate = shiftDate(dayDate, 1); renderTab('day'); });
-    $('dayToday').addEventListener('click', () => { dayDate = new Date().toISOString().slice(0, 10); renderTab('day'); });
+    $('dayToday').addEventListener('click', () => { dayDate = isoDate(new Date()); renderTab('day'); });
     $('dayPicker').addEventListener('change', event => { if (event.target.value) { dayDate = event.target.value; renderTab('day'); } });
     $('dayPrintBtn')?.addEventListener('click', () => window.print());
     $('tabWorkspace').querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.copy), false)));
@@ -284,7 +284,7 @@ async function renderTab(view) {
 function shiftDate(value, days) {
   const date = new Date(`${value}T00:00:00`);
   date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
+  return isoDate(date);
 }
 
 function buildDayView() {
@@ -343,7 +343,7 @@ function buildWeeklyReport() {
   weekEntries.forEach(entry => dayTotals.set(entry.date, (dayTotals.get(entry.date) || 0) + Number(entry.hours || 0)));
   const dayBars = [...Array(7)].map((_, index) => {
     const date = shiftWeek(weekStartDate, index);
-    const key = date.toISOString().slice(0, 10);
+    const key = isoDate(date);
     const hours = dayTotals.get(key) || 0;
     const label = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
     return `<div class="day-bar-row"><span>${esc(label)}</span><div class="day-bar-track"><i style="width:${total ? hours / Math.max(...dayTotals.values(), 1) * 100 : 0}%"></i></div><strong>${hours.toFixed(2)}</strong></div>`;
@@ -355,7 +355,7 @@ function buildWeeklyReport() {
     const date = new Date(`${entry.date}T00:00:00`);
     const monday = new Date(date);
     monday.setDate(date.getDate() - ((date.getDay() + 6) % 7));
-    const weekStart = monday.toISOString().slice(0, 10);
+    const weekStart = isoDate(monday);
     if (!weeks.has(weekStart)) weeks.set(weekStart, new Map());
     const projects = weeks.get(weekStart);
     const projectName = entry.project || '(No project)';
@@ -371,7 +371,7 @@ function buildWeeklyReport() {
   const reportRows = [...weeks.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([weekStart, projects]) => {
     const weekEnd = new Date(`${weekStart}T00:00:00`);
     weekEnd.setDate(weekEnd.getDate() + 6);
-    const weekEntries = entries.filter(entry => entry.date >= weekStart && entry.date <= weekEnd.toISOString().slice(0, 10));
+    const weekEntries = entries.filter(entry => entry.date >= weekStart && entry.date <= isoDate(weekEnd));
     const weekHours = weekEntries.reduce((total, entry) => total + Number(entry.hours || 0), 0);
     const projectHtml = [...projects.entries()].map(([project, tasks]) => {
       const projectHours = [...tasks.values()].flatMap(dates => [...dates.values()].flat()).reduce((total, entry) => total + Number(entry.hours || 0), 0);
@@ -1550,8 +1550,8 @@ function completedStamp(task) {
   if (task.status !== 'Complete' || !task.completedAt) return null;
   const d = new Date(task.completedAt);
   if (isNaN(d)) return null;
-  const today = new Date().toISOString().slice(0, 10);
-  const sameDay = d.toISOString().slice(0, 10) === today;
+  const today = isoDate(new Date());
+  const sameDay = isoDate(d) === today;
   return {
     text: sameDay
       ? d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
@@ -1565,7 +1565,7 @@ function taskHtml(task) {
   const idx = TASK_STATUSES.indexOf(task.status);
   const prev = TASK_STATUSES[idx - 1];
   const next = TASK_STATUSES[idx + 1];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoDate(new Date());
   const stale = task.date && task.date !== today && task.status !== 'Complete';
   const editing = task.id === editingTaskId;
   const made = createdStamp(task);
@@ -1643,7 +1643,7 @@ async function logTaskEvent(payload) {
 
 async function addTask(title, priority) {
   const taskId = 'task-' + Date.now();
-  const date = new Date().toISOString().slice(0, 10);
+  const date = isoDate(new Date());
   const seq = nextSeq(priority);
   try {
     await logTaskEvent({ type: 'task:created', taskId, title, status: 'New', priority, seq, date });
