@@ -1620,46 +1620,7 @@ button.secondary:hover {
   border-color: var(--ink-dark) !important;
   color: #ffffff !important;
 }
-
-.btn-whatsapp {
-  background: #25d366 !important;
-  color: #ffffff !important;
-  border-color: #20ba5a !important;
-  font-family: "Space Grotesk", sans-serif !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25) !important;
-}
-
-.btn-whatsapp:hover {
-  background: #1eb857 !important;
-  border-color: #1a9e4b !important;
-  color: #ffffff !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35) !important;
-}
-
-.btn-reminder-wa {
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 700;
-  border-radius: var(--radius-pill);
-  background: #e7f7ed;
-  border: 1px solid #a3e6be;
-  color: #1b8a43;
-  cursor: pointer;
-  box-shadow: none;
-  transition: all .15s ease;
-  white-space: nowrap;
-}
-
-.btn-reminder-wa:hover {
-  background: #25d366;
-  border-color: #20ba5a;
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-.team-phone-link, .link-wa {
+.team-phone-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1667,17 +1628,9 @@ button.secondary:hover {
   font-size: 11px;
   font-weight: 600;
   border-radius: var(--radius-pill);
-  background: #e7f7ed;
-  border: 1px solid #a3e6be;
-  color: #1b8a43;
-  text-decoration: none;
-  transition: all .15s ease;
-}
-
-.team-phone-link:hover, .link-wa:hover {
-  background: #25d366;
-  color: #ffffff;
-  border-color: #20ba5a;
+  background: var(--paper-warm);
+  border: 1px solid var(--border-subtle);
+  color: var(--ink-light);
 }
 
 .day-kpis, .report-kpis {

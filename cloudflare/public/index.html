@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=botanic-19">
+  <link rel="stylesheet" href="/styles.css?v=botanic-21">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -54,9 +54,9 @@
       </form>
       <form id="forgotForm" class="forgot-form" hidden>
         <h2>Reset password</h2>
-        <p class="muted">Use the username, email, and secondary recovery password created during registration.</p>
+        <p class="muted">Enter your username, registered email or phone number, and secondary recovery password.</p>
         <label>Username<input id="forgotUsername" autocomplete="username" required></label>
-        <label>Email<input id="forgotEmail" type="email" required></label>
+        <label>Email or Registered Phone<input id="forgotIdentifier" placeholder="Email or Phone (+91...)" required></label>
         <label>Secondary recovery password<input id="forgotRecovery" type="password" required></label>
         <label>New password<input id="forgotNewPassword" type="password" minlength="8" autocomplete="new-password" required></label>
         <label>Confirm new password<input id="forgotConfirmPassword" type="password" minlength="8" autocomplete="new-password" required></label>
@@ -181,8 +181,8 @@
         <label>Username<input id="profileUsername" readonly></label>
         <label>Display name<input id="profileDisplayName" readonly></label>
         <label>Email address<input id="profileEmail" readonly></label>
-        <label>Phone number (for WhatsApp/SMS)<input id="profilePhone" type="tel" placeholder="+91 9876543210"></label>
-        <p class="muted">Adding your phone number enables instant 1-click WhatsApp and SMS timesheet sharing, task alerts, and team messaging.</p>
+        <label>Phone number (for Account Recovery &amp; Password Reset)<input id="profilePhone" type="tel" placeholder="+91 9876543210"></label>
+        <p class="muted">Your phone number is used for account verification, password recovery, and timesheet notifications.</p>
         <div class="password-actions"><button type="button" id="cancelProfile" class="secondary">Cancel</button><button type="submit">Save Phone</button></div>
         <p id="profileMessage" class="message"></p>
       </form>
@@ -200,6 +200,6 @@
       </form>
     </section>
   </main>
-  <script src="/app.js?v=botanic-19"></script>
+  <script src="/app.js?v=botanic-21"></script>
 </body>
 </html>

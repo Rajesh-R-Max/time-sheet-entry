@@ -214,11 +214,25 @@ async function forgotPassword(request, env, headers) {
 async function recoverWithSecondaryPassword(request, env, headers) {
   const body = await request.json();
   const username = String(body.username || '').trim();
-  const email = String(body.email || '').trim().toLowerCase();
+  const identifier = String(body.identifier || body.email || body.phone || '').trim();
+  const email = identifier.toLowerCase();
+  const cleanedPhone = identifier.replace(/[^\d+]/g, '');
   const recoveryPassword = String(body.recoveryPassword || '');
   const newPassword = String(body.newPassword || '');
-  const user = await env.DB.prepare('SELECT * FROM users WHERE username = ? COLLATE NOCASE AND email = ? COLLATE NOCASE').bind(username, email).first();
-  if (!user?.recovery_hash || !(await verifyPassword(recoveryPassword, user.recovery_hash, user.recovery_salt, user.recovery_iterations))) throw new Error('Recovery details are invalid.');
+
+  // Look up user by username and either matching email or matching phone number
+  let user = await env.DB.prepare(`
+    SELECT * FROM users 
+    WHERE username = ? COLLATE NOCASE 
+      AND (
+        email = ? COLLATE NOCASE 
+        OR (phone IS NOT NULL AND (phone = ? OR REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '(', '') = ?))
+      )
+  `).bind(username, email, identifier, cleanedPhone).first();
+
+  if (!user?.recovery_hash || !(await verifyPassword(recoveryPassword, user.recovery_hash, user.recovery_salt, user.recovery_iterations))) {
+    throw new Error('Recovery details are invalid. Check username, email/phone, and recovery password.');
+  }
   if (newPassword.length < 8) throw new Error('New password must be at least 8 characters.');
   const record = await hashPassword(newPassword);
   await env.DB.prepare('UPDATE users SET password_hash = ?, password_salt = ?, password_iterations = ?, must_change_password = 0 WHERE id = ?').bind(record.hash, record.salt, record.iterations, user.id).run();

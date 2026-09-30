@@ -208,7 +208,7 @@ async function renderTab(view) {
     day: buildDayView,
     tasks: `<div class="taskboard-shell tab-card tasks-card"><div class="tasks-head"><h2>Today's Tasks</h2><span class="board-stats" id="boardStats">0 of 0 done</span><button type="button" id="btnShowDone" class="btn-tiny" hidden>Show earlier completed</button><span class="task-date" id="taskDate">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></div><form id="taskForm" autocomplete="off" class="task-input-form"><div class="task-input-group"><input type="text" id="taskTitle" placeholder="Add a new task..." maxlength="200" required><select id="taskPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add Task</button></div><div id="taskMsg" class="msg"></div></form><div id="tasksBoard" class="tasks-board"></div></div>`,
     reminders: `<div class="tab-card reminder-card"><div class="reminder-head"><div><p class="eyebrow">REMINDERS &amp; SCHEDULE</p><h2>Reminders <span id="reminderStats" class="reminder-stats-badge"></span></h2></div><div class="reminder-head-actions"><button type="button" id="btnQuickAddReminder" class="btn btn-primary btn-sm">+ New Reminder</button></div></div><form id="reminderForm" autocomplete="off" class="reminder-input-form"><div class="reminder-form-grid"><input type="text" id="reminderTitle" placeholder="What do you need to remember?" maxlength="200" required><input type="date" id="reminderDueDate" class="date-input" required aria-label="Due date"><input type="time" id="reminderDueTime" class="time-input" aria-label="Due time (optional)"><select id="reminderPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add</button></div><div class="reminder-form-extra"><input type="text" id="reminderNotes" placeholder="Additional details or notes (optional)..." maxlength="300"></div><div id="reminderMsg" class="msg"></div></form><div class="reminder-filters"><button type="button" class="reminder-filter-btn is-active" data-filter="all">All Active</button><button type="button" class="reminder-filter-btn" data-filter="today">Due Today</button><button type="button" class="reminder-filter-btn" data-filter="upcoming">Upcoming</button><button type="button" class="reminder-filter-btn" data-filter="completed">Completed</button></div><div id="reminderList" class="reminder-list"></div></div>`,
-    report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="reportWhatsAppBtn" class="btn-whatsapp" title="Share weekly report via WhatsApp">💬 WhatsApp</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
+    report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
     projects: `<div class="tab-card"><p class="eyebrow">WORK CATALOG</p><h2>Projects</h2><form id="projectForm" class="management-form"><input id="newProject" placeholder="Project name" required><select id="projectStatus"><option>New</option><option>In-Progress</option><option>Hold</option><option>Complete</option></select><button type="submit">Create project</button></form><div id="projectList" class="project-list"></div></div>`,
     team: `<div class="team-card"><div class="team-head"><h2>Team activities <span id="teamStats"></span></h2><label>YEAR<select id="teamYear"></select></label></div><form id="teamForm" class="team-form"><select id="teamPerson" required aria-label="Team member"><option value="">Select a person...</option></select><select id="teamActivity" aria-label="Activity"><option value="WFH">WFH</option></select><div class="team-date-field"><div class="team-input-calendar-wrap"><input id="teamDate" class="team-date-input" type="text" readonly required placeholder="Select week..." aria-label="Select week date" title="Click to open calendar and select a week"><button type="button" id="teamCalendarBtn" class="team-calendar-btn" title="Open Calendar">📅</button></div><input id="teamWeek" type="hidden" required><div id="teamWeekPreview" class="team-week-preview">Pick date to select Mon–Fri week</div><div id="teamCalendarPopup" class="team-calendar-popup" hidden></div></div><input id="teamNotes" placeholder="Notes (optional)" aria-label="Notes"><button type="submit">+ Log week</button></form><div id="teamWeekStrip" class="team-week-strip"><button type="button" id="twsPrev" class="tws-btn" title="Previous Week">&larr; Prev Week</button><div id="twsDays" class="tws-days"></div><button type="button" id="twsNext" class="tws-btn" title="Next Week">Next Week &rarr;</button></div><div id="teamMessage" class="msg"></div><div id="teamList" class="team-list"></div><details class="manage-people"><summary>Manage people</summary><form id="newTeamForm"><input id="newTeamMember" placeholder="Add someone to the team..." required><input id="newTeamPhone" placeholder="Phone (+91... optional)"><button type="submit">Add person</button></form></details></div>`,
     holidays: `<div class="holiday-card"><div class="holiday-head"><h2>Holidays <span id="holidayYears"></span></h2><span id="holidayNext"></span></div><form id="holidayForm" class="holiday-form"><input id="holidayDate" class="date-input" type="date" placeholder="dd-mm-yyyy" required><input id="holidayName" placeholder="Holiday name..." required><button type="submit">+ Add Holiday</button></form><p class="holiday-note">Holidays live on the Cloudflare D1 calendar. Adding one here makes it available to all users.</p><div id="holidayList" class="holiday-list"></div></div>`,
@@ -276,34 +276,6 @@ async function renderTab(view) {
       document.querySelectorAll('.report-week, .report-project, .report-task').forEach(item => item.open = true);
       window.print();
     });
-    $('reportWhatsAppBtn')?.addEventListener('click', () => {
-      const weekStartDate = reportWeekStart || getMonday(new Date());
-      const weekStart = isoDate(weekStartDate);
-      const weekEndDate = shiftWeek(weekStartDate, 6);
-      const weekEnd = isoDate(weekEndDate);
-      const weekEntries = entries.filter(entry => entry.date >= weekStart && entry.date <= weekEnd);
-      const weekNum = isoWeek(weekStartDate);
-      const weekCode = `${weekNum.year}-W${String(weekNum.week).padStart(2, '0')}`;
-      const rangeDisplay = `${formatDayMonth(weekStartDate)} – ${formatDayMonth(weekEndDate)} ${weekEndDate.getFullYear()}`;
-      const total = weekEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
-      const billable = weekEntries.filter(entry => String(entry.billable).toLowerCase() === 'yes').reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
-      const nonBillable = total - billable;
-      const daysLogged = new Set(weekEntries.map(e => e.date)).size;
-      const byProject = [...new Set(weekEntries.map(entry => entry.project).filter(Boolean))].map(name => ({ name, hours: weekEntries.filter(entry => entry.project === name).reduce((sum, entry) => sum + Number(entry.hours || 0), 0) }));
-
-      const lines = [
-        `*Timesheet Weekly Report (${weekCode})*`,
-        `📅 Period: ${rangeDisplay}`,
-        `👤 User: ${currentUser?.name || currentUser?.username || 'User'}`,
-        `⏱ Total: ${total.toFixed(2)}h (${daysLogged} days logged, ${weekEntries.length} entries)`,
-        `💼 Billable: ${billable.toFixed(2)}h | 🛑 Non-Billable: ${nonBillable.toFixed(2)}h`,
-        `\n*Projects:*`
-      ];
-      byProject.forEach(p => {
-        lines.push(`• ${p.name}: ${p.hours.toFixed(2)}h`);
-      });
-      shareViaWhatsApp(currentUser?.phone, lines.join('\n'));
-    });
   }
   if (view === 'day') {
     $('dayPrev').addEventListener('click', () => { dayDate = shiftDate(dayDate, -1); renderTab('day'); });
@@ -311,27 +283,6 @@ async function renderTab(view) {
     $('dayToday').addEventListener('click', () => { dayDate = isoDate(new Date()); renderTab('day'); });
     $('dayPicker').addEventListener('change', event => { if (event.target.value) { dayDate = event.target.value; renderTab('day'); } });
     $('dayPrintBtn')?.addEventListener('click', () => window.print());
-    $('dayWhatsAppBtn')?.addEventListener('click', () => {
-      const dayEntries = entries.filter(entry => entry.date === dayDate);
-      const total = dayEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
-      const billable = dayEntries.filter(entry => String(entry.billable).toLowerCase() === 'yes').reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
-      const nonBillable = total - billable;
-      const dateLabel = new Date(`${dayDate}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      const lines = [
-        `*Timesheet Daily Summary (${dateLabel})*`,
-        `👤 User: ${currentUser?.name || currentUser?.username || 'User'}`,
-        `⏱ Total: ${total.toFixed(2)}h (Billable: ${billable.toFixed(2)}h | Non-Billable: ${nonBillable.toFixed(2)}h)`,
-        `\n*Logged Entries (${dayEntries.length}):*`
-      ];
-      if (!dayEntries.length) {
-        lines.push(`(No entries logged on this day)`);
-      } else {
-        dayEntries.forEach(e => {
-          lines.push(`• ${e.project}: ${Number(e.hours).toFixed(2)}h${e.task ? ` - ${e.task}` : ''}${e.notes ? ` (${e.notes})` : ''}`);
-        });
-      }
-      shareViaWhatsApp(currentUser?.phone, lines.join('\n'));
-    });
     $('tabWorkspace').querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.copy), false)));
     $('tabWorkspace').querySelectorAll('[data-edit]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.edit), true)));
     $('tabWorkspace').querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', () => deleteEntry(Number(button.dataset.delete))));
@@ -664,24 +615,6 @@ function cleanPhoneNumber(phone) {
   return String(phone).replace(/[^\d+]/g, '').replace(/^0+/, '');
 }
 
-function shareViaWhatsApp(phone, text) {
-  const targetPhone = cleanPhoneNumber(phone || currentUser?.phone || '');
-  const encoded = encodeURIComponent(text);
-  const url = targetPhone
-    ? `https://wa.me/${targetPhone.replace(/^\+/, '')}?text=${encoded}`
-    : `https://wa.me/?text=${encoded}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-}
-
-function shareViaSms(phone, text) {
-  const targetPhone = cleanPhoneNumber(phone || currentUser?.phone || '');
-  const encoded = encodeURIComponent(text);
-  const url = targetPhone
-    ? `sms:${targetPhone}?body=${encoded}`
-    : `sms:?body=${encoded}`;
-  window.location.href = url;
-}
-
 function shiftDate(value, days) {
   const date = new Date(`${value}T00:00:00`);
   date.setDate(date.getDate() + days);
@@ -704,7 +637,7 @@ function buildDayView() {
       <p class="print-meta">${currentUser ? `${esc(currentUser.name || currentUser.username)} · ` : ''}${total.toFixed(2)} hours logged</p>
     </div>
   `;
-  return `<div class="day-card">${printHead}<div class="day-toolbar"><div><button type="button" id="dayPrev">&#8592; Previous</button><strong>${esc(dateLabel)}</strong><button type="button" id="dayNext">Next &#8594;</button><button type="button" id="dayToday">Today</button></div><div class="day-toolbar-actions"><input id="dayPicker" class="date-input" type="date" value="${dayDate}"><button type="button" id="dayWhatsAppBtn" class="btn-whatsapp" title="Share day summary via WhatsApp">💬 WhatsApp</button><button type="button" id="dayPrintBtn" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div><div class="day-kpis"><div><strong>${total.toFixed(2)}</strong><span>TOTAL HOURS</span></div><div><strong>${billable.toFixed(2)}</strong><span>BILLABLE</span></div><div><strong>${nonBillable.toFixed(2)}</strong><span>NON-BILLABLE</span></div><div><strong>${dayEntries.length}</strong><span>ENTRIES</span></div></div><h3 class="report-section-title">WHERE THE TIME WENT</h3><div class="day-projects">${projectBars}</div><h3 class="report-section-title">ENTRIES</h3><div class="day-entries">${entryRows}</div></div>`;
+  return `<div class="day-card">${printHead}<div class="day-toolbar"><div><button type="button" id="dayPrev">&#8592; Previous</button><strong>${esc(dateLabel)}</strong><button type="button" id="dayNext">Next &#8594;</button><button type="button" id="dayToday">Today</button></div><div class="day-toolbar-actions"><input id="dayPicker" class="date-input" type="date" value="${dayDate}"><button type="button" id="dayPrintBtn" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div><div class="day-kpis"><div><strong>${total.toFixed(2)}</strong><span>TOTAL HOURS</span></div><div><strong>${billable.toFixed(2)}</strong><span>BILLABLE</span></div><div><strong>${nonBillable.toFixed(2)}</strong><span>NON-BILLABLE</span></div><div><strong>${dayEntries.length}</strong><span>ENTRIES</span></div></div><h3 class="report-section-title">WHERE THE TIME WENT</h3><div class="day-projects">${projectBars}</div><h3 class="report-section-title">ENTRIES</h3><div class="day-entries">${entryRows}</div></div>`;
 }
 
 function getMonday(date) {
@@ -1205,7 +1138,7 @@ async function loadManagementData(view) {
         return `<div class="team-row">
           <div class="team-member-info">
             <strong>${esc(member.name)}</strong>
-            ${member.phone ? `<a href="https://wa.me/${cleanPhoneNumber(member.phone).replace(/^\+/, '')}?text=${encodeURIComponent(`Hi ${member.name}, checking in regarding timesheet & WFH schedule.`)}" target="_blank" rel="noopener noreferrer" class="team-phone-link" title="Message ${esc(member.name)} on WhatsApp">💬 ${esc(member.phone)}</a>` : ''}
+            ${member.phone ? `<span class="team-phone-badge" title="Phone: ${esc(member.phone)}">📞 ${esc(member.phone)}</span>` : ''}
           </div>
           <div class="team-track"><i style="width:${pct}%"></i></div>
           <b>${count} of ${allowance}</b>
@@ -1409,7 +1342,7 @@ async function loadManagementData(view) {
         <strong>${esc(user.username)}</strong>
         <span>
           ${esc(user.name)} · ✉️ ${esc(user.email || 'No email')}
-          ${user.phone ? ` · 📱 <a href="https://wa.me/${cleanPhoneNumber(user.phone).replace(/^\+/, '')}" target="_blank" rel="noopener noreferrer" class="link-wa" title="Message on WhatsApp">${esc(user.phone)}</a>` : ' · 📱 No phone'}
+          ${user.phone ? ` · � ${esc(user.phone)}` : ' · 📞 No phone'}
         </span>
       </div>
     `).join('') || '<p class="empty">No users yet.</p>';
@@ -1601,7 +1534,19 @@ $('registerForm').addEventListener('submit', event => {
 $('forgotForm').addEventListener('submit', event => {
   event.preventDefault();
   if ($('forgotNewPassword').value !== $('forgotConfirmPassword').value) { $('forgotMessage').textContent = 'New passwords do not match.'; return; }
-  api('/api/password/recover', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('forgotUsername').value, email: $('forgotEmail').value, recoveryPassword: $('forgotRecovery').value, newPassword: $('forgotNewPassword').value }) }).then(data => { $('forgotMessage').textContent = data.message; $('forgotForm').reset(); }).catch(error => { $('forgotMessage').textContent = error.message; });
+  const identifier = $('forgotIdentifier')?.value || $('forgotEmail')?.value || '';
+  api('/api/password/recover', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: $('forgotUsername').value,
+      identifier,
+      email: identifier,
+      phone: identifier,
+      recoveryPassword: $('forgotRecovery').value,
+      newPassword: $('forgotNewPassword').value
+    })
+  }).then(data => { $('forgotMessage').textContent = data.message; $('forgotForm').reset(); }).catch(error => { $('forgotMessage').textContent = error.message; });
 });
 
 $('logout')?.addEventListener('click', async () => {
@@ -1911,7 +1856,6 @@ function renderReminders() {
               ${rem.notes ? `<p class="reminder-notes">${esc(rem.notes)}</p>` : ''}
             </div>
             <div class="reminder-actions">
-              <button type="button" class="btn-reminder-wa" data-wa-reminder="${rem.id}" title="Send reminder via WhatsApp">💬 Share</button>
               <button type="button" class="reminder-del-btn" data-delete-reminder="${rem.id}" title="Delete reminder">&times;</button>
             </div>
           </div>
@@ -1922,16 +1866,6 @@ function renderReminders() {
   list.querySelectorAll('[data-toggle]').forEach(btn => {
     btn.addEventListener('click', async () => {
       await toggleReminder(Number(btn.dataset.toggle));
-    });
-  });
-
-  list.querySelectorAll('[data-wa-reminder]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const rem = reminders.find(r => r.id === Number(btn.dataset.waReminder));
-      if (!rem) return;
-      const timeStr = rem.dueTime ? ` @ ${rem.dueTime}` : '';
-      const text = `*Timesheet Reminder:*\n📌 ${rem.title}\n📅 Due: ${rem.dueDate}${timeStr}\nPriority: P${rem.priority || 3}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`;
-      shareViaWhatsApp(currentUser?.phone, text);
     });
   });
 
