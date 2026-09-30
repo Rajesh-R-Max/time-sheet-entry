@@ -668,17 +668,17 @@ button.secondary:hover {
 
 .entry-actions button {
   min-width: 110px;
-  padding: 9px 16px;
+  padding: 9px 18px;
   font-size: 12px;
 }
 
-#addKeep {
-  background: var(--ink);
-  box-shadow: 0 4px 12px rgba(23, 60, 58, 0.2);
+#addKeep, #saveEntry {
+  background: var(--coral);
+  color: #ffffff;
 }
 
-#addKeep:hover {
-  background: var(--ink-dark);
+#addKeep:hover, #saveEntry:hover {
+  background: var(--coral-hover);
 }
 
 /* Scratchpad Section */
