@@ -1,4 +1,4 @@
-/* Timesheet App - NammaNest Modern Design Language */
+/* Timesheet App - NammaNest Modern Design Language (Option 1: Bengaluru Botanic) */
 :root {
   color-scheme: light;
   --ink: #173c3a;
@@ -12,18 +12,20 @@
   --mint: #d9eee4;
   --mint-subtle: #edf7f2;
   --mint-deep: #2a8368;
+  --mint-accent: #3fa584;
   --coral: #ed7157;
   --coral-hover: #dc5f45;
   --coral-subtle: #fdf2ef;
   --yellow: #f5ca62;
+  --yellow-hover: #e8bd52;
   --yellow-subtle: #fef8eb;
   --line: #d8e2d9;
   --line-subtle: #e9f0ea;
   --danger: #d9534f;
   --danger-subtle: #fff1f0;
-  --shadow-sm: 0 2px 8px rgba(23, 60, 58, 0.05);
-  --shadow-md: 0 8px 24px rgba(23, 60, 58, 0.07);
-  --shadow-lg: 0 18px 50px rgba(23, 60, 58, 0.10);
+  --shadow-sm: 0 2px 8px rgba(23, 60, 58, 0.06);
+  --shadow-md: 0 8px 24px rgba(23, 60, 58, 0.08);
+  --shadow-lg: 0 18px 50px rgba(23, 60, 58, 0.12);
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -37,9 +39,10 @@ body {
   min-height: 100vh;
   background: var(--paper);
   background-image:
-    radial-gradient(circle at 12% 16%, rgba(217, 238, 228, 0.65), transparent 40%),
-    radial-gradient(circle at 88% 82%, rgba(245, 202, 98, 0.28), transparent 45%),
-    radial-gradient(circle at 82% 18%, rgba(237, 113, 87, 0.12), transparent 35%);
+    radial-gradient(circle at 12% 16%, rgba(217, 238, 228, 0.75), transparent 45%),
+    radial-gradient(circle at 88% 82%, rgba(245, 202, 98, 0.35), transparent 50%),
+    radial-gradient(circle at 82% 18%, rgba(237, 113, 87, 0.18), transparent 40%),
+    radial-gradient(circle at 35% 85%, rgba(217, 238, 228, 0.45), transparent 45%);
   background-attachment: fixed;
   color: var(--ink);
   font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -338,6 +341,72 @@ button.secondary:hover {
   box-shadow: 0 4px 12px rgba(23, 60, 58, 0.22);
 }
 
+.tab[data-view="tasks"].active {
+  background: var(--mint-deep) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(42, 131, 104, 0.28);
+}
+
+.tab[data-view="reminders"].active {
+  background: var(--yellow) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 12px rgba(245, 202, 98, 0.35);
+}
+
+.tab[data-view="entry"].active {
+  background: var(--coral) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(237, 113, 87, 0.30);
+}
+
+.tab[data-view="day"].active {
+  background: var(--ink) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(23, 60, 58, 0.25);
+}
+
+.tab[data-view="report"].active {
+  background: var(--mint-deep) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(42, 131, 104, 0.28);
+}
+
+.tab[data-view="projects"].active {
+  background: var(--coral) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(237, 113, 87, 0.30);
+}
+
+.tab[data-view="team"].active {
+  background: var(--mint-deep) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(42, 131, 104, 0.28);
+}
+
+.tab[data-view="holidays"].active {
+  background: var(--yellow) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 12px rgba(245, 202, 98, 0.35);
+}
+
+.tab[data-view="sessions"].active {
+  background: var(--ink) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(23, 60, 58, 0.25);
+}
+
+.tab[data-view="users"].active {
+  background: var(--coral) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(237, 113, 87, 0.30);
+}
+
+.tab[data-view="options"].active {
+  background: var(--muted) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(94, 119, 117, 0.25);
+}
+
 .tab-icon {
   font-size: 13px;
   line-height: 1;
@@ -617,22 +686,23 @@ button.secondary:hover {
 }
 
 .hour-chips button {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: var(--radius-pill);
   background: var(--mint-subtle);
   border: 1px solid var(--mint);
   color: var(--ink);
-  font-family: "DM Sans", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   box-shadow: none;
 }
 
 .hour-chips button:hover {
-  background: var(--mint);
-  border-color: var(--mint-deep);
-  color: var(--ink);
-  transform: none;
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(237, 113, 87, 0.25);
 }
 
 .support-details {
@@ -1275,18 +1345,64 @@ button.secondary:hover {
 }
 
 .day-kpis div, .report-kpis div {
-  padding: 12px 10px;
+  padding: 14px 12px;
   text-align: center;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--coral);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all .15s ease;
+}
+
+.day-kpis div:hover, .report-kpis div:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.day-kpis div:nth-child(1), .report-kpis div:nth-child(1) {
+  background: var(--coral-subtle);
+  border-top: 4px solid var(--coral);
+}
+.day-kpis div:nth-child(1) strong, .report-kpis div:nth-child(1) strong {
+  color: var(--coral);
+}
+
+.day-kpis div:nth-child(2), .report-kpis div:nth-child(2) {
+  background: var(--mint-subtle);
+  border-top: 4px solid var(--mint-deep);
+}
+.day-kpis div:nth-child(2) strong, .report-kpis div:nth-child(2) strong {
+  color: var(--mint-deep);
+}
+
+.day-kpis div:nth-child(3), .report-kpis div:nth-child(3) {
+  background: var(--yellow-subtle);
+  border-top: 4px solid var(--yellow);
+}
+.day-kpis div:nth-child(3) strong, .report-kpis div:nth-child(3) strong {
+  color: #a87913;
+}
+
+.day-kpis div:nth-child(4), .report-kpis div:nth-child(4) {
+  background: #f4f3fb;
+  border-top: 4px solid #7c68ba;
+}
+.day-kpis div:nth-child(4) strong, .report-kpis div:nth-child(4) strong {
+  color: #5d499c;
+}
+
+.report-kpis div:nth-child(5) {
+  background: var(--mint-subtle);
+  border-top: 4px solid var(--ink);
+}
+.report-kpis div:nth-child(5) strong {
+  color: var(--ink);
 }
 
 .day-kpis strong, .report-kpis strong {
   font-family: "Space Grotesk", sans-serif;
   color: var(--ink);
-  font-size: 20px;
+  font-size: 22px;
   display: block;
 }
 
