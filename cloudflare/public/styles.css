@@ -580,6 +580,7 @@ button.secondary:hover {
   flex: 1;
   min-width: 0;
   padding: 24px 32px;
+  width: 100%;
 }
 
 .workspace-head {
@@ -587,9 +588,8 @@ button.secondary:hover {
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
-  margin: 0 auto 20px;
-  max-width: 1400px;
-  width: min(1400px, 100%);
+  margin: 0 0 20px 0;
+  width: 100%;
   border-bottom: 1px solid var(--line);
   padding-bottom: 14px;
 }
@@ -647,10 +647,10 @@ button.secondary:hover {
 /* Entry Workspace Grid */
 .entry-workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 20px;
-  width: min(1400px, 100%);
-  margin: 0 auto;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin: 0;
   align-items: start;
 }
 
@@ -662,11 +662,12 @@ button.secondary:hover {
 }
 
 .entry-form, .tab-card, .table-wrap, .report-card, .day-card, .team-card, .holiday-card, .admin-panel-card {
+  width: 100%;
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  padding: 20px;
+  padding: 24px;
 }
 
 .entry-form {
@@ -1025,8 +1026,8 @@ button.secondary:hover {
 
 /* Tasks Kanban Board */
 .taskboard-shell {
-  width: min(1200px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .tasks-card {
@@ -1362,8 +1363,8 @@ button.secondary:hover {
 
 /* Reminders View */
 .reminder-card {
-  width: min(1080px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   border-top: 4px solid var(--yellow);
 }
 
@@ -1474,8 +1475,8 @@ button.secondary:hover {
 
 /* Day View & Weekly Reports */
 .day-card, .report-card {
-  width: min(900px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .day-toolbar, .report-toolbar {
@@ -1630,8 +1631,8 @@ button.secondary:hover {
 
 /* Team Activities View & Calendar */
 .team-card {
-  width: min(1080px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   border-top: 4px solid var(--mint-deep);
 }
 
@@ -2195,8 +2196,8 @@ button.secondary:hover {
 
 /* Holidays View */
 .holiday-card {
-  width: min(1080px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   border-top: 4px solid var(--yellow);
 }
 
@@ -2570,8 +2571,8 @@ button.secondary:hover {
 
 /* Admin / Active Sessions / Users */
 .admin-panel-card {
-  width: min(1140px, 100%);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .session-card {
