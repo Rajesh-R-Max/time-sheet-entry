@@ -19,6 +19,7 @@ export default {
       if (url.pathname === '/api/users' && request.method === 'GET') return await listUsers(request, env, cors);
       if (url.pathname === '/api/users' && request.method === 'POST') return await createUser(request, env, cors);
       if (url.pathname === '/api/users/email' && request.method === 'POST') return await updateUserEmail(request, env, cors);
+      if (url.pathname === '/api/users/phone' && request.method === 'POST') return await updateUserPhone(request, env, cors);
       if (url.pathname === '/api/users/reset-password' && request.method === 'POST') return await resetPassword(request, env, cors);
       if (url.pathname === '/api/users/reset-code' && request.method === 'POST') return await createResetCode(request, env, cors);
       if (url.pathname === '/api/sessions' && request.method === 'GET') return await listActiveSessions(request, env, cors);
@@ -152,6 +153,7 @@ async function register(request, env, headers) {
   const username = String(body.username || '').trim().toUpperCase();
   const name = String(body.name || username).trim();
   const email = String(body.email || '').trim().toLowerCase();
+  const phone = String(body.phone || '').trim();
   const password = String(body.password || '');
   const recoveryPassword = String(body.recoveryPassword || '');
   if (!/^[A-Z0-9._-]{2,40}$/.test(username)) throw new Error('Username must be 2-40 letters, numbers, dots, hyphens, or underscores.');
@@ -161,8 +163,8 @@ async function register(request, env, headers) {
   if (name.toLowerCase() === password.toLowerCase() || name.toLowerCase() === recoveryPassword.toLowerCase()) throw new Error('Display name cannot be a password.');
   const primary = await hashPassword(password);
   const recovery = await hashPassword(recoveryPassword);
-  await env.DB.prepare(`INSERT INTO users (username, display_name, email, password_hash, password_salt, password_iterations, recovery_hash, recovery_salt, recovery_iterations, must_change_password, is_admin)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`).bind(username, name, email, primary.hash, primary.salt, primary.iterations, recovery.hash, recovery.salt, recovery.iterations).run();
+  await env.DB.prepare(`INSERT INTO users (username, display_name, email, phone, password_hash, password_salt, password_iterations, recovery_hash, recovery_salt, recovery_iterations, must_change_password, is_admin)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`).bind(username, name, email, phone || null, primary.hash, primary.salt, primary.iterations, recovery.hash, recovery.salt, recovery.iterations).run();
   return json({ ok: true, message: 'Registration successful. You can now sign in.' }, 201, headers);
 }
 
@@ -241,7 +243,7 @@ async function sendResetEmail(env, user, code) {
 
 async function listUsers(request, env, headers) {
   const admin = await adminUser(request, env);
-  const result = await env.DB.prepare('SELECT username, display_name AS name, email, is_admin AS isAdmin FROM users ORDER BY username').all();
+  const result = await env.DB.prepare('SELECT username, display_name AS name, email, phone, is_admin AS isAdmin FROM users ORDER BY username').all();
   return json({ users: result.results }, 200, headers);
 }
 
@@ -251,13 +253,14 @@ async function createUser(request, env, headers) {
   const username = String(body.username || '').trim().toUpperCase();
   const name = String(body.name || username).trim();
   const email = String(body.email || '').trim().toLowerCase();
+  const phone = String(body.phone || '').trim();
   const password = String(body.password || '');
   if (!/^[A-Z0-9._-]{2,40}$/.test(username)) throw new Error('Username must be 2-40 letters, numbers, dots, hyphens, or underscores.');
   if (password.length < 8) throw new Error('Password must be at least 8 characters.');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('A valid email address is required.');
   const record = await hashPassword(password);
-  await env.DB.prepare(`INSERT INTO users (username, display_name, email, password_hash, password_salt, password_iterations, must_change_password)
-    VALUES (?, ?, ?, ?, ?, ?, 1)`).bind(username, name, email, record.hash, record.salt, record.iterations).run();
+  await env.DB.prepare(`INSERT INTO users (username, display_name, email, phone, password_hash, password_salt, password_iterations, must_change_password)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1)`).bind(username, name, email, phone || null, record.hash, record.salt, record.iterations).run();
   return json({ ok: true }, 201, headers);
 }
 
@@ -270,6 +273,16 @@ async function updateUserEmail(request, env, headers) {
   const result = await env.DB.prepare('UPDATE users SET email = ? WHERE username = ? COLLATE NOCASE').bind(email, username).run();
   if (!result.meta.changes) throw new Error('User not found.');
   return json({ ok: true }, 200, headers);
+}
+
+async function updateUserPhone(request, env, headers) {
+  const user = await authenticatedUser(request, env);
+  const body = await request.json();
+  const targetUsername = user.is_admin && body.username ? String(body.username).trim() : user.username;
+  const phone = String(body.phone || '').trim();
+  const result = await env.DB.prepare('UPDATE users SET phone = ? WHERE username = ? COLLATE NOCASE').bind(phone || null, targetUsername).run();
+  if (!result.meta.changes) throw new Error('User not found.');
+  return json({ ok: true, phone }, 200, headers);
 }
 
 async function resetPassword(request, env, headers) {
@@ -392,8 +405,8 @@ async function addProjectTask(request, env, headers) {
 async function listTeam(request, env, headers) {
   const user = await authenticatedUser(request, env);
   const result = user.is_admin
-    ? await env.DB.prepare('SELECT id, name, status FROM team_members ORDER BY name').all()
-    : await env.DB.prepare('SELECT id, name, status FROM team_members WHERE user_id = ? ORDER BY name').bind(user.id).all();
+    ? await env.DB.prepare('SELECT id, name, phone, status FROM team_members ORDER BY name').all()
+    : await env.DB.prepare('SELECT id, name, phone, status FROM team_members WHERE user_id = ? ORDER BY name').bind(user.id).all();
   const activity = await env.DB.prepare('SELECT id, member_id AS memberId, week_start AS week, activity, notes FROM team_activity ORDER BY week_start').all();
   return json({ members: result.results, activity: activity.results }, 200, headers);
 }
@@ -402,8 +415,9 @@ async function addTeamMember(request, env, headers) {
   const user = await authenticatedUser(request, env);
   const body = await request.json();
   const name = String(body.name || '').trim();
+  const phone = String(body.phone || '').trim();
   if (!name) throw new Error('Team member name is required.');
-  await env.DB.prepare('INSERT INTO team_members (user_id, name, status) VALUES (?, ?, ?)').bind(user.id, name, 'Active').run();
+  await env.DB.prepare('INSERT INTO team_members (user_id, name, phone, status) VALUES (?, ?, ?, ?)').bind(user.id, name, phone || null, 'Active').run();
   return json({ ok: true }, 201, headers);
 }
 
@@ -740,7 +754,14 @@ async function adminUser(request, env) {
 }
 
 function publicUser(user) {
-  return { username: user.username, name: user.display_name, mustChangePassword: Boolean(user.must_change_password), isAdmin: Boolean(user.is_admin) };
+  return {
+    username: user.username,
+    name: user.display_name,
+    email: user.email || '',
+    phone: user.phone || '',
+    mustChangePassword: Boolean(user.must_change_password),
+    isAdmin: Boolean(user.is_admin)
+  };
 }
 
 async function hashPassword(password) {

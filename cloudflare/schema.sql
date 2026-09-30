@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL COLLATE NOCASE UNIQUE,
   display_name TEXT NOT NULL,
   email TEXT,
+  phone TEXT,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   password_iterations INTEGER NOT NULL DEFAULT 120000,
@@ -76,6 +77,7 @@ CREATE TABLE IF NOT EXISTS team_members (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id),
   name TEXT NOT NULL UNIQUE,
+  phone TEXT,
   status TEXT NOT NULL DEFAULT 'Active',
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );

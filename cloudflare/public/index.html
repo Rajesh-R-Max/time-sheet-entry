@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Grotesk:wght@400..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=botanic-18">
+  <link rel="stylesheet" href="/styles.css?v=botanic-19">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -45,6 +45,7 @@
         <label>Username<input id="registerUsername" required></label>
         <label>Display name<input id="registerName" required></label>
         <label>Email<input id="registerEmail" type="email" required></label>
+        <label>Phone number (optional)<input id="registerPhone" type="tel" placeholder="+91 9876543210"></label>
         <label>Password<input id="registerPassword" type="password" minlength="8" required></label>
         <label>Secondary recovery password<input id="registerRecovery" type="password" minlength="8" required></label>
         <button type="submit">Create account</button>
@@ -111,6 +112,7 @@
         <div class="sidebar-holidays"><h3>Upcoming holidays</h3><div id="sidebarHolidayList"></div></div>
         <div class="side-stats"><div><span>today</span><strong id="todayTotal">0h</strong></div><div><span>this week</span><strong id="weekTotal">0h</strong></div><div><span>entries</span><strong id="entryTotal">0</strong></div></div>
         <div class="sidebar-footer-actions">
+          <button id="editProfile" class="sidebar-btn-action" title="User Profile and Phone">📱 Profile &amp; Phone</button>
           <button id="changePassword" class="sidebar-btn-action" title="Change password">🔑 Password</button>
         </div>
       </aside>
@@ -172,6 +174,20 @@
       </main>
     </section>
 
+    <section id="profilePanel" class="panel password-panel" hidden>
+      <p class="eyebrow">USER PROFILE</p>
+      <h2>Profile &amp; Phone Settings</h2>
+      <form id="profileForm">
+        <label>Username<input id="profileUsername" readonly></label>
+        <label>Display name<input id="profileDisplayName" readonly></label>
+        <label>Email address<input id="profileEmail" readonly></label>
+        <label>Phone number (for WhatsApp/SMS)<input id="profilePhone" type="tel" placeholder="+91 9876543210"></label>
+        <p class="muted">Adding your phone number enables instant 1-click WhatsApp and SMS timesheet sharing, task alerts, and team messaging.</p>
+        <div class="password-actions"><button type="button" id="cancelProfile" class="secondary">Cancel</button><button type="submit">Save Phone</button></div>
+        <p id="profileMessage" class="message"></p>
+      </form>
+    </section>
+
     <section id="passwordPanel" class="panel password-panel" hidden>
       <p class="eyebrow">ACCOUNT SECURITY</p>
       <h2>Change password</h2>
@@ -184,6 +200,6 @@
       </form>
     </section>
   </main>
-  <script src="/app.js?v=botanic-18"></script>
+  <script src="/app.js?v=botanic-19"></script>
 </body>
 </html>

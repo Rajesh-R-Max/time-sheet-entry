@@ -1,0 +1,2 @@
+ALTER TABLE users ADD COLUMN phone TEXT;
+ALTER TABLE team_members ADD COLUMN phone TEXT;

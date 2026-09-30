@@ -96,6 +96,7 @@ async function showApp(user) {
   $('loginPanel').hidden = true;
   $('appPanel').hidden = false;
   $('passwordPanel').hidden = true;
+  if ($('profilePanel')) $('profilePanel').hidden = true;
   const displayName = user.name || user.username;
   if ($('currentUser')) $('currentUser').textContent = `Signed in as ${displayName}`;
   const wsUser = $('workspaceUser');
@@ -119,6 +120,7 @@ function showLogin() {
   $('loginPanel').hidden = false;
   $('appPanel').hidden = true;
   $('passwordPanel').hidden = true;
+  if ($('profilePanel')) $('profilePanel').hidden = true;
   if ($('usersTab')) $('usersTab').hidden = true;
   if ($('sessionsTab')) $('sessionsTab').hidden = true;
   if ($('currentUser')) $('currentUser').textContent = '';
@@ -206,9 +208,9 @@ async function renderTab(view) {
     day: buildDayView,
     tasks: `<div class="taskboard-shell tab-card tasks-card"><div class="tasks-head"><h2>Today's Tasks</h2><span class="board-stats" id="boardStats">0 of 0 done</span><button type="button" id="btnShowDone" class="btn-tiny" hidden>Show earlier completed</button><span class="task-date" id="taskDate">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></div><form id="taskForm" autocomplete="off" class="task-input-form"><div class="task-input-group"><input type="text" id="taskTitle" placeholder="Add a new task..." maxlength="200" required><select id="taskPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add Task</button></div><div id="taskMsg" class="msg"></div></form><div id="tasksBoard" class="tasks-board"></div></div>`,
     reminders: `<div class="tab-card reminder-card"><div class="reminder-head"><div><p class="eyebrow">REMINDERS &amp; SCHEDULE</p><h2>Reminders <span id="reminderStats" class="reminder-stats-badge"></span></h2></div><div class="reminder-head-actions"><button type="button" id="btnQuickAddReminder" class="btn btn-primary btn-sm">+ New Reminder</button></div></div><form id="reminderForm" autocomplete="off" class="reminder-input-form"><div class="reminder-form-grid"><input type="text" id="reminderTitle" placeholder="What do you need to remember?" maxlength="200" required><input type="date" id="reminderDueDate" class="date-input" required aria-label="Due date"><input type="time" id="reminderDueTime" class="time-input" aria-label="Due time (optional)"><select id="reminderPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add</button></div><div class="reminder-form-extra"><input type="text" id="reminderNotes" placeholder="Additional details or notes (optional)..." maxlength="300"></div><div id="reminderMsg" class="msg"></div></form><div class="reminder-filters"><button type="button" class="reminder-filter-btn is-active" data-filter="all">All Active</button><button type="button" class="reminder-filter-btn" data-filter="today">Due Today</button><button type="button" class="reminder-filter-btn" data-filter="upcoming">Upcoming</button><button type="button" class="reminder-filter-btn" data-filter="completed">Completed</button></div><div id="reminderList" class="reminder-list"></div></div>`,
-    report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
+    report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="reportWhatsAppBtn" class="btn-whatsapp" title="Share weekly report via WhatsApp">💬 WhatsApp</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
     projects: `<div class="tab-card"><p class="eyebrow">WORK CATALOG</p><h2>Projects</h2><form id="projectForm" class="management-form"><input id="newProject" placeholder="Project name" required><select id="projectStatus"><option>New</option><option>In-Progress</option><option>Hold</option><option>Complete</option></select><button type="submit">Create project</button></form><div id="projectList" class="project-list"></div></div>`,
-    team: `<div class="team-card"><div class="team-head"><h2>Team activities <span id="teamStats"></span></h2><label>YEAR<select id="teamYear"></select></label></div><form id="teamForm" class="team-form"><select id="teamPerson" required aria-label="Team member"><option value="">Select a person...</option></select><select id="teamActivity" aria-label="Activity"><option value="WFH">WFH</option></select><div class="team-date-field"><div class="team-input-calendar-wrap"><input id="teamDate" class="team-date-input" type="text" readonly required placeholder="Select week..." aria-label="Select week date" title="Click to open calendar and select a week"><button type="button" id="teamCalendarBtn" class="team-calendar-btn" title="Open Calendar">📅</button></div><input id="teamWeek" type="hidden" required><div id="teamWeekPreview" class="team-week-preview">Pick date to select Mon–Fri week</div><div id="teamCalendarPopup" class="team-calendar-popup" hidden></div></div><input id="teamNotes" placeholder="Notes (optional)" aria-label="Notes"><button type="submit">+ Log week</button></form><div id="teamWeekStrip" class="team-week-strip"><button type="button" id="twsPrev" class="tws-btn" title="Previous Week">&larr; Prev Week</button><div id="twsDays" class="tws-days"></div><button type="button" id="twsNext" class="tws-btn" title="Next Week">Next Week &rarr;</button></div><div id="teamMessage" class="msg"></div><div id="teamList" class="team-list"></div><details class="manage-people"><summary>Manage people</summary><form id="newTeamForm"><input id="newTeamMember" placeholder="Add someone to the team..." required><button type="submit">Add person</button></form></details></div>`,
+    team: `<div class="team-card"><div class="team-head"><h2>Team activities <span id="teamStats"></span></h2><label>YEAR<select id="teamYear"></select></label></div><form id="teamForm" class="team-form"><select id="teamPerson" required aria-label="Team member"><option value="">Select a person...</option></select><select id="teamActivity" aria-label="Activity"><option value="WFH">WFH</option></select><div class="team-date-field"><div class="team-input-calendar-wrap"><input id="teamDate" class="team-date-input" type="text" readonly required placeholder="Select week..." aria-label="Select week date" title="Click to open calendar and select a week"><button type="button" id="teamCalendarBtn" class="team-calendar-btn" title="Open Calendar">📅</button></div><input id="teamWeek" type="hidden" required><div id="teamWeekPreview" class="team-week-preview">Pick date to select Mon–Fri week</div><div id="teamCalendarPopup" class="team-calendar-popup" hidden></div></div><input id="teamNotes" placeholder="Notes (optional)" aria-label="Notes"><button type="submit">+ Log week</button></form><div id="teamWeekStrip" class="team-week-strip"><button type="button" id="twsPrev" class="tws-btn" title="Previous Week">&larr; Prev Week</button><div id="twsDays" class="tws-days"></div><button type="button" id="twsNext" class="tws-btn" title="Next Week">Next Week &rarr;</button></div><div id="teamMessage" class="msg"></div><div id="teamList" class="team-list"></div><details class="manage-people"><summary>Manage people</summary><form id="newTeamForm"><input id="newTeamMember" placeholder="Add someone to the team..." required><input id="newTeamPhone" placeholder="Phone (+91... optional)"><button type="submit">Add person</button></form></details></div>`,
     holidays: `<div class="holiday-card"><div class="holiday-head"><h2>Holidays <span id="holidayYears"></span></h2><span id="holidayNext"></span></div><form id="holidayForm" class="holiday-form"><input id="holidayDate" class="date-input" type="date" placeholder="dd-mm-yyyy" required><input id="holidayName" placeholder="Holiday name..." required><button type="submit">+ Add Holiday</button></form><p class="holiday-note">Holidays live on the Cloudflare D1 calendar. Adding one here makes it available to all users.</p><div id="holidayList" class="holiday-list"></div></div>`,
     sessions: `<div class="tab-card admin-panel-card sessions-panel-card">
       <div class="admin-panel-head">
@@ -236,6 +238,9 @@ async function renderTab(view) {
 
           <h3>Update Email</h3>
           <form id="emailForm" class="management-form reset-form"><select id="emailUsername" required aria-label="User to update"></select><input id="editUserEmail" type="email" placeholder="Email address" required><button type="submit">Save email</button></form>
+
+          <h3>Update Phone Number</h3>
+          <form id="phoneForm" class="management-form reset-form"><select id="phoneUsername" required aria-label="User to update phone"></select><input id="editUserPhone" type="tel" placeholder="Phone (+91...)" required><button type="submit">Save phone</button></form>
 
           <h3>Reset Password</h3>
           <form id="resetUserForm" class="management-form reset-form"><select id="resetUsername" required aria-label="User to reset"></select><input id="resetPassword" type="password" minlength="8" placeholder="New temporary password" required><button type="submit">Reset password</button></form>
@@ -271,6 +276,34 @@ async function renderTab(view) {
       document.querySelectorAll('.report-week, .report-project, .report-task').forEach(item => item.open = true);
       window.print();
     });
+    $('reportWhatsAppBtn')?.addEventListener('click', () => {
+      const weekStartDate = reportWeekStart || getMonday(new Date());
+      const weekStart = isoDate(weekStartDate);
+      const weekEndDate = shiftWeek(weekStartDate, 6);
+      const weekEnd = isoDate(weekEndDate);
+      const weekEntries = entries.filter(entry => entry.date >= weekStart && entry.date <= weekEnd);
+      const weekNum = isoWeek(weekStartDate);
+      const weekCode = `${weekNum.year}-W${String(weekNum.week).padStart(2, '0')}`;
+      const rangeDisplay = `${formatDayMonth(weekStartDate)} – ${formatDayMonth(weekEndDate)} ${weekEndDate.getFullYear()}`;
+      const total = weekEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+      const billable = weekEntries.filter(entry => String(entry.billable).toLowerCase() === 'yes').reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+      const nonBillable = total - billable;
+      const daysLogged = new Set(weekEntries.map(e => e.date)).size;
+      const byProject = [...new Set(weekEntries.map(entry => entry.project).filter(Boolean))].map(name => ({ name, hours: weekEntries.filter(entry => entry.project === name).reduce((sum, entry) => sum + Number(entry.hours || 0), 0) }));
+
+      const lines = [
+        `*Timesheet Weekly Report (${weekCode})*`,
+        `📅 Period: ${rangeDisplay}`,
+        `👤 User: ${currentUser?.name || currentUser?.username || 'User'}`,
+        `⏱ Total: ${total.toFixed(2)}h (${daysLogged} days logged, ${weekEntries.length} entries)`,
+        `💼 Billable: ${billable.toFixed(2)}h | 🛑 Non-Billable: ${nonBillable.toFixed(2)}h`,
+        `\n*Projects:*`
+      ];
+      byProject.forEach(p => {
+        lines.push(`• ${p.name}: ${p.hours.toFixed(2)}h`);
+      });
+      shareViaWhatsApp(currentUser?.phone, lines.join('\n'));
+    });
   }
   if (view === 'day') {
     $('dayPrev').addEventListener('click', () => { dayDate = shiftDate(dayDate, -1); renderTab('day'); });
@@ -278,6 +311,27 @@ async function renderTab(view) {
     $('dayToday').addEventListener('click', () => { dayDate = isoDate(new Date()); renderTab('day'); });
     $('dayPicker').addEventListener('change', event => { if (event.target.value) { dayDate = event.target.value; renderTab('day'); } });
     $('dayPrintBtn')?.addEventListener('click', () => window.print());
+    $('dayWhatsAppBtn')?.addEventListener('click', () => {
+      const dayEntries = entries.filter(entry => entry.date === dayDate);
+      const total = dayEntries.reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+      const billable = dayEntries.filter(entry => String(entry.billable).toLowerCase() === 'yes').reduce((sum, entry) => sum + Number(entry.hours || 0), 0);
+      const nonBillable = total - billable;
+      const dateLabel = new Date(`${dayDate}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      const lines = [
+        `*Timesheet Daily Summary (${dateLabel})*`,
+        `👤 User: ${currentUser?.name || currentUser?.username || 'User'}`,
+        `⏱ Total: ${total.toFixed(2)}h (Billable: ${billable.toFixed(2)}h | Non-Billable: ${nonBillable.toFixed(2)}h)`,
+        `\n*Logged Entries (${dayEntries.length}):*`
+      ];
+      if (!dayEntries.length) {
+        lines.push(`(No entries logged on this day)`);
+      } else {
+        dayEntries.forEach(e => {
+          lines.push(`• ${e.project}: ${Number(e.hours).toFixed(2)}h${e.task ? ` - ${e.task}` : ''}${e.notes ? ` (${e.notes})` : ''}`);
+        });
+      }
+      shareViaWhatsApp(currentUser?.phone, lines.join('\n'));
+    });
     $('tabWorkspace').querySelectorAll('[data-copy]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.copy), false)));
     $('tabWorkspace').querySelectorAll('[data-edit]').forEach(button => button.addEventListener('click', () => loadEntryIntoForm(Number(button.dataset.edit), true)));
     $('tabWorkspace').querySelectorAll('[data-delete]').forEach(button => button.addEventListener('click', () => deleteEntry(Number(button.dataset.delete))));
@@ -605,6 +659,29 @@ function wireTrainingActionBtns() {
   });
 }
 
+function cleanPhoneNumber(phone) {
+  if (!phone) return '';
+  return String(phone).replace(/[^\d+]/g, '').replace(/^0+/, '');
+}
+
+function shareViaWhatsApp(phone, text) {
+  const targetPhone = cleanPhoneNumber(phone || currentUser?.phone || '');
+  const encoded = encodeURIComponent(text);
+  const url = targetPhone
+    ? `https://wa.me/${targetPhone.replace(/^\+/, '')}?text=${encoded}`
+    : `https://wa.me/?text=${encoded}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+function shareViaSms(phone, text) {
+  const targetPhone = cleanPhoneNumber(phone || currentUser?.phone || '');
+  const encoded = encodeURIComponent(text);
+  const url = targetPhone
+    ? `sms:${targetPhone}?body=${encoded}`
+    : `sms:?body=${encoded}`;
+  window.location.href = url;
+}
+
 function shiftDate(value, days) {
   const date = new Date(`${value}T00:00:00`);
   date.setDate(date.getDate() + days);
@@ -627,7 +704,7 @@ function buildDayView() {
       <p class="print-meta">${currentUser ? `${esc(currentUser.name || currentUser.username)} · ` : ''}${total.toFixed(2)} hours logged</p>
     </div>
   `;
-  return `<div class="day-card">${printHead}<div class="day-toolbar"><div><button type="button" id="dayPrev">&#8592; Previous</button><strong>${esc(dateLabel)}</strong><button type="button" id="dayNext">Next &#8594;</button><button type="button" id="dayToday">Today</button></div><div><input id="dayPicker" class="date-input" type="date" value="${dayDate}"><button type="button" id="dayPrintBtn" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div><div class="day-kpis"><div><strong>${total.toFixed(2)}</strong><span>TOTAL HOURS</span></div><div><strong>${billable.toFixed(2)}</strong><span>BILLABLE</span></div><div><strong>${nonBillable.toFixed(2)}</strong><span>NON-BILLABLE</span></div><div><strong>${dayEntries.length}</strong><span>ENTRIES</span></div></div><h3 class="report-section-title">WHERE THE TIME WENT</h3><div class="day-projects">${projectBars}</div><h3 class="report-section-title">ENTRIES</h3><div class="day-entries">${entryRows}</div></div>`;
+  return `<div class="day-card">${printHead}<div class="day-toolbar"><div><button type="button" id="dayPrev">&#8592; Previous</button><strong>${esc(dateLabel)}</strong><button type="button" id="dayNext">Next &#8594;</button><button type="button" id="dayToday">Today</button></div><div class="day-toolbar-actions"><input id="dayPicker" class="date-input" type="date" value="${dayDate}"><button type="button" id="dayWhatsAppBtn" class="btn-whatsapp" title="Share day summary via WhatsApp">💬 WhatsApp</button><button type="button" id="dayPrintBtn" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div><div class="day-kpis"><div><strong>${total.toFixed(2)}</strong><span>TOTAL HOURS</span></div><div><strong>${billable.toFixed(2)}</strong><span>BILLABLE</span></div><div><strong>${nonBillable.toFixed(2)}</strong><span>NON-BILLABLE</span></div><div><strong>${dayEntries.length}</strong><span>ENTRIES</span></div></div><h3 class="report-section-title">WHERE THE TIME WENT</h3><div class="day-projects">${projectBars}</div><h3 class="report-section-title">ENTRIES</h3><div class="day-entries">${entryRows}</div></div>`;
 }
 
 function getMonday(date) {
@@ -1128,6 +1205,7 @@ async function loadManagementData(view) {
         return `<div class="team-row">
           <div class="team-member-info">
             <strong>${esc(member.name)}</strong>
+            ${member.phone ? `<a href="https://wa.me/${cleanPhoneNumber(member.phone).replace(/^\+/, '')}?text=${encodeURIComponent(`Hi ${member.name}, checking in regarding timesheet & WFH schedule.`)}" target="_blank" rel="noopener noreferrer" class="team-phone-link" title="Message ${esc(member.name)} on WhatsApp">💬 ${esc(member.phone)}</a>` : ''}
           </div>
           <div class="team-track"><i style="width:${pct}%"></i></div>
           <b>${count} of ${allowance}</b>
@@ -1208,7 +1286,10 @@ async function loadManagementData(view) {
         await api('/api/team', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: $('newTeamMember').value })
+          body: JSON.stringify({
+            name: $('newTeamMember').value,
+            phone: $('newTeamPhone')?.value || ''
+          })
         });
         renderTab('team');
       } catch (error) {
@@ -1313,12 +1394,29 @@ async function loadManagementData(view) {
     $('resetUsername').innerHTML = data.users.map(user => `<option value="${esc(user.username)}">${esc(user.name)} (${esc(user.username)})</option>`).join('');
     $('codeUsername').innerHTML = $('resetUsername').innerHTML;
     $('emailUsername').innerHTML = data.users.map(user => `<option value="${esc(user.username)}" data-email="${esc(user.email || '')}">${esc(user.name)} (${esc(user.username)})</option>`).join('');
+    if ($('phoneUsername')) {
+      $('phoneUsername').innerHTML = data.users.map(user => `<option value="${esc(user.username)}" data-phone="${esc(user.phone || '')}">${esc(user.name)} (${esc(user.username)})</option>`).join('');
+    }
     const selectedEmailUser = data.users[0];
     $('editUserEmail').value = selectedEmailUser?.email || '';
+    if ($('editUserPhone')) $('editUserPhone').value = selectedEmailUser?.phone || '';
+
     $('emailUsername').addEventListener('change', () => { const user = data.users.find(item => item.username === $('emailUsername').value); $('editUserEmail').value = user?.email || ''; });
-    $('userList').innerHTML = data.users.map(user => `<div class="data-row"><strong>${esc(user.username)}</strong><span>${esc(user.name)} · ${esc(user.email || 'Email not set')}</span></div>`).join('') || '<p class="empty">No users yet.</p>';
+    $('phoneUsername')?.addEventListener('change', () => { const user = data.users.find(item => item.username === $('phoneUsername').value); $('editUserPhone').value = user?.phone || ''; });
+
+    $('userList').innerHTML = data.users.map(user => `
+      <div class="data-row">
+        <strong>${esc(user.username)}</strong>
+        <span>
+          ${esc(user.name)} · ✉️ ${esc(user.email || 'No email')}
+          ${user.phone ? ` · 📱 <a href="https://wa.me/${cleanPhoneNumber(user.phone).replace(/^\+/, '')}" target="_blank" rel="noopener noreferrer" class="link-wa" title="Message on WhatsApp">${esc(user.phone)}</a>` : ' · 📱 No phone'}
+        </span>
+      </div>
+    `).join('') || '<p class="empty">No users yet.</p>';
+
     $('userForm').addEventListener('submit', async event => { event.preventDefault(); try { await api('/api/users', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('newUsername').value, name: $('newUserName').value, email: $('newUserEmail').value, password: $('newUserPassword').value }) }); $('userMessage').textContent = 'User created.'; renderTab('users'); } catch (error) { $('userMessage').textContent = error.message; } });
     $('emailForm').addEventListener('submit', async event => { event.preventDefault(); try { await api('/api/users/email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('emailUsername').value, email: $('editUserEmail').value }) }); $('userMessage').textContent = 'Email address saved.'; renderTab('users'); } catch (error) { $('userMessage').textContent = error.message; } });
+    $('phoneForm')?.addEventListener('submit', async event => { event.preventDefault(); try { await api('/api/users/phone', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('phoneUsername').value, phone: $('editUserPhone').value }) }); $('userMessage').textContent = 'Phone number saved.'; renderTab('users'); } catch (error) { $('userMessage').textContent = error.message; } });
     $('resetUserForm').addEventListener('submit', async event => { event.preventDefault(); try { await api('/api/users/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('resetUsername').value, password: $('resetPassword').value }) }); $('userMessage').textContent = 'Password reset. The user must choose a new password at next login.'; $('resetPassword').value = ''; } catch (error) { $('userMessage').textContent = error.message; } });
     $('resetCodeForm').addEventListener('submit', async event => { event.preventDefault(); try { const data = await api('/api/users/reset-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('codeUsername').value }) }); $('userMessage').textContent = `One-time reset code: ${data.code} (expires in 15 minutes).`; } catch (error) { $('userMessage').textContent = error.message; } });
   }
@@ -1487,7 +1585,18 @@ $('cancelForgot').addEventListener('click', () => {
 $('cancelRegister').addEventListener('click', () => { $('registerForm').hidden = true; $('loginForm').hidden = false; $('registerMessage').textContent = ''; });
 $('registerForm').addEventListener('submit', event => {
   event.preventDefault();
-  api('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: $('registerUsername').value, name: $('registerName').value, email: $('registerEmail').value, password: $('registerPassword').value, recoveryPassword: $('registerRecovery').value }) }).then(data => { $('registerMessage').textContent = data.message; $('registerForm').reset(); }).catch(error => { $('registerMessage').textContent = error.message; });
+  api('/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: $('registerUsername').value,
+      name: $('registerName').value,
+      email: $('registerEmail').value,
+      phone: $('registerPhone')?.value || '',
+      password: $('registerPassword').value,
+      recoveryPassword: $('registerRecovery').value
+    })
+  }).then(data => { $('registerMessage').textContent = data.message; $('registerForm').reset(); }).catch(error => { $('registerMessage').textContent = error.message; });
 });
 $('forgotForm').addEventListener('submit', event => {
   event.preventDefault();
@@ -1502,6 +1611,34 @@ $('logout')?.addEventListener('click', async () => {
 $('topSignoutBtn')?.addEventListener('click', async () => {
   await api('/api/logout', { method: 'POST' }).catch(() => {});
   showLogin();
+});
+
+$('editProfile')?.addEventListener('click', () => {
+  if (!currentUser) return;
+  $('profilePanel').hidden = false;
+  $('profileMessage').textContent = '';
+  $('profileUsername').value = currentUser.username || '';
+  $('profileDisplayName').value = currentUser.name || currentUser.username || '';
+  $('profileEmail').value = currentUser.email || '';
+  $('profilePhone').value = currentUser.phone || '';
+  $('profilePhone').focus();
+});
+$('cancelProfile')?.addEventListener('click', () => { $('profilePanel').hidden = true; });
+$('profileForm')?.addEventListener('submit', async event => {
+  event.preventDefault();
+  const phone = $('profilePhone').value.trim();
+  try {
+    await api('/api/users/phone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    currentUser.phone = phone;
+    $('profileMessage').textContent = 'Phone number saved successfully.';
+    setTimeout(() => { $('profilePanel').hidden = true; }, 1200);
+  } catch (error) {
+    $('profileMessage').textContent = error.message;
+  }
 });
 
 $('changePassword').addEventListener('click', () => {
@@ -1774,6 +1911,7 @@ function renderReminders() {
               ${rem.notes ? `<p class="reminder-notes">${esc(rem.notes)}</p>` : ''}
             </div>
             <div class="reminder-actions">
+              <button type="button" class="btn-reminder-wa" data-wa-reminder="${rem.id}" title="Send reminder via WhatsApp">💬 Share</button>
               <button type="button" class="reminder-del-btn" data-delete-reminder="${rem.id}" title="Delete reminder">&times;</button>
             </div>
           </div>
@@ -1784,6 +1922,16 @@ function renderReminders() {
   list.querySelectorAll('[data-toggle]').forEach(btn => {
     btn.addEventListener('click', async () => {
       await toggleReminder(Number(btn.dataset.toggle));
+    });
+  });
+
+  list.querySelectorAll('[data-wa-reminder]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rem = reminders.find(r => r.id === Number(btn.dataset.waReminder));
+      if (!rem) return;
+      const timeStr = rem.dueTime ? ` @ ${rem.dueTime}` : '';
+      const text = `*Timesheet Reminder:*\n📌 ${rem.title}\n📅 Due: ${rem.dueDate}${timeStr}\nPriority: P${rem.priority || 3}${rem.notes ? `\nNotes: ${rem.notes}` : ''}`;
+      shareViaWhatsApp(currentUser?.phone, text);
     });
   });
 
