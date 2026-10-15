@@ -1549,6 +1549,52 @@ button.secondary:hover {
 .reminder-due-tag.is-soon { background: var(--yellow-subtle); color: var(--ink); }
 
 /* Day View & Weekly Reports */
+.summary-filters {
+  align-items: flex-end;
+}
+
+.summary-filters label {
+  min-width: 0;
+  flex: 1 1 140px;
+}
+
+.summary-filters select, .summary-filters input {
+  width: 100%;
+  min-width: 0;
+}
+
+.summary-filters #summaryDates {
+  flex: 2 1 280px;
+  min-width: 0;
+}
+
+.summary-filters #summaryDates[hidden] {
+  display: none;
+}
+
+.project-summary > .report-project {
+  margin-left: 0;
+}
+
+.project-summary summary span, .summary-task-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-summary summary strong, .summary-task-row strong {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.summary-task-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px 10px 28px;
+  border-top: 1px solid var(--line-subtle);
+  font-size: 13px;
+}
+
 .day-card, .report-card {
   width: 100%;
   margin: 0;

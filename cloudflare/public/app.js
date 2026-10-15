@@ -4,6 +4,7 @@ let currentUser = null;
 let projects = [];
 let editingEntryId = null;
 let reportWeekStart = null;
+let projectSummaryFilters = { project: '', period: 'all', start: '', end: '' };
 const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 let dayDate = isoDate(new Date());
 let optionCatalogLoaded = false;
@@ -117,6 +118,7 @@ async function showApp(user) {
 
 function showLogin() {
   currentUser = null;
+  projectSummaryFilters = { project: '', period: 'all', start: '', end: '' };
   $('loginPanel').hidden = false;
   $('appPanel').hidden = true;
   $('passwordPanel').hidden = true;
@@ -206,6 +208,7 @@ async function renderTab(view) {
   const reportHtml = view === 'report' ? buildWeeklyReport() : '';
   const content = {
     day: buildDayView,
+    projectSummary: buildProjectSummary,
     tasks: `<div class="taskboard-shell tab-card tasks-card"><div class="tasks-head"><h2>Today's Tasks</h2><span class="board-stats" id="boardStats">0 of 0 done</span><button type="button" id="btnShowDone" class="btn-tiny" hidden>Show earlier completed</button><span class="task-date" id="taskDate">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></div><form id="taskForm" autocomplete="off" class="task-input-form"><div class="task-input-group"><input type="text" id="taskTitle" placeholder="Add a new task..." maxlength="200" required><select id="taskPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add Task</button></div><div id="taskMsg" class="msg"></div></form><div id="tasksBoard" class="tasks-board"></div></div>`,
     reminders: `<div class="tab-card reminder-card"><div class="reminder-head"><div><p class="eyebrow">REMINDERS &amp; SCHEDULE</p><h2>Reminders <span id="reminderStats" class="reminder-stats-badge"></span></h2></div><div class="reminder-head-actions"><button type="button" id="btnQuickAddReminder" class="btn btn-primary btn-sm">+ New Reminder</button></div></div><form id="reminderForm" autocomplete="off" class="reminder-input-form"><div class="reminder-form-grid"><input type="text" id="reminderTitle" placeholder="What do you need to remember?" maxlength="200" required><input type="date" id="reminderDueDate" class="date-input" required aria-label="Due date"><input type="time" id="reminderDueTime" class="time-input" aria-label="Due time (optional)"><select id="reminderPriority" class="prio-select" aria-label="Priority"><option value="1">P1 - Highest</option><option value="2">P2 - High</option><option value="3" selected>P3 - Medium</option><option value="4">P4 - Low</option><option value="5">P5 - Lowest</option></select><button type="submit" class="btn btn-primary btn-sm">+ Add</button></div><div class="reminder-form-extra"><input type="text" id="reminderNotes" placeholder="Additional details or notes (optional)..." maxlength="300"></div><div id="reminderMsg" class="msg"></div></form><div class="reminder-filters"><button type="button" class="reminder-filter-btn is-active" data-filter="all">All Active</button><button type="button" class="reminder-filter-btn" data-filter="today">Due Today</button><button type="button" class="reminder-filter-btn" data-filter="upcoming">Upcoming</button><button type="button" class="reminder-filter-btn" data-filter="completed">Completed</button></div><div id="reminderList" class="reminder-list"></div></div>`,
     report: `<div class="report-card"><div class="report-toolbar"><div><button type="button" id="reportPrev" class="report-nav">&#8592; Previous</button><button type="button" id="reportThis" class="report-nav">This week</button><button type="button" id="reportNext" class="report-nav">Next &#8594;</button></div><div class="report-toolbar-actions"><button type="button" id="expandReport">Expand all</button><button type="button" id="collapseReport">Collapse all</button><button type="button" id="exportReportPdf" class="btn-pdf-export" title="Export as PDF / Print">📄 Export as PDF</button></div></div>${reportHtml}</div>`,
@@ -266,6 +269,38 @@ async function renderTab(view) {
   tabWorkspace.hidden = false;
   $('entryWorkspace').hidden = true;
   await loadManagementData(view);
+  if (view === 'projectSummary') {
+    const form = $('projectSummaryForm');
+    const updateDates = () => {
+      const useRange = $('summaryPeriod').value === 'range';
+      $('summaryDates').hidden = !useRange;
+      ['summaryStart', 'summaryEnd'].forEach(id => {
+        $(id).disabled = !useRange;
+        $(id).required = useRange;
+      });
+      $('summaryEnd').setCustomValidity('');
+    };
+    $('summaryPeriod').addEventListener('change', updateDates);
+    ['summaryStart', 'summaryEnd'].forEach(id => $(id).addEventListener('input', () => $('summaryEnd').setCustomValidity('')));
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const filters = { project: $('summaryProject').value, period: $('summaryPeriod').value, start: $('summaryStart').value, end: $('summaryEnd').value };
+      if (filters.period === 'range' && filters.start > filters.end) {
+        $('summaryEnd').setCustomValidity('End date must be on or after start date.');
+        $('summaryEnd').reportValidity();
+        return;
+      }
+      projectSummaryFilters = filters;
+      renderTab('projectSummary');
+    });
+    $('summaryExpand').addEventListener('click', () => tabWorkspace.querySelectorAll('.report-project').forEach(item => item.open = true));
+    $('summaryCollapse').addEventListener('click', () => tabWorkspace.querySelectorAll('.report-project').forEach(item => item.open = false));
+    $('summaryPrint').addEventListener('click', () => {
+      tabWorkspace.querySelectorAll('.report-project').forEach(item => item.open = true);
+      window.print();
+    });
+    updateDates();
+  }
   if (view === 'report') {
     $('reportPrev').addEventListener('click', () => { reportWeekStart = shiftWeek(reportWeekStart, -7); renderTab('report'); });
     $('reportThis').addEventListener('click', () => { reportWeekStart = getMonday(new Date()); renderTab('report'); });
@@ -651,6 +686,57 @@ function shiftWeek(date, days) {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
   return next;
+}
+
+function summarizeProjects(sourceEntries, filters) {
+  const grouped = new Map();
+  let total = 0;
+  let billable = 0;
+  let count = 0;
+  sourceEntries.forEach(entry => {
+    if (filters.project && entry.project !== filters.project) return;
+    if (filters.period === 'range' && (entry.date < filters.start || entry.date > filters.end)) return;
+    const hours = Number(entry.hours || 0);
+    const projectName = entry.project || '(No project)';
+    const taskName = entry.task || '(No task)';
+    if (!grouped.has(projectName)) grouped.set(projectName, { name: projectName, hours: 0, tasks: new Map() });
+    const project = grouped.get(projectName);
+    project.hours += hours;
+    project.tasks.set(taskName, (project.tasks.get(taskName) || 0) + hours);
+    total += hours;
+    if (String(entry.billable).toLowerCase() === 'yes') billable += hours;
+    count += 1;
+  });
+  return { projects: [...grouped.values()].sort((first, second) => first.name.localeCompare(second.name)), total, billable, count };
+}
+
+function buildProjectSummary() {
+  const filters = projectSummaryFilters;
+  const summary = summarizeProjects(entries, filters);
+  const names = [...new Set(entries.map(entry => entry.project).filter(Boolean))].sort();
+  const range = filters.period === 'range';
+  const periodLabel = range ? `${filters.start} to ${filters.end}` : 'All time';
+  const projectRows = summary.projects.map(project => {
+    const taskRows = [...project.tasks.entries()].sort(([first], [second]) => first.localeCompare(second)).map(([task, hours]) =>
+      `<div class="summary-task-row"><span>${esc(task)}</span><strong>${hours.toFixed(2)} h</strong></div>`).join('');
+    return `<details class="report-project" open><summary><span>${esc(project.name)}</span><strong>${project.hours.toFixed(2)} h</strong></summary>${taskRows}</details>`;
+  }).join('');
+  return `<section class="report-card project-summary">
+    <form id="projectSummaryForm" class="report-toolbar summary-filters">
+      <label>Project<select id="summaryProject"><option value="">All projects</option>${names.map(name => `<option value="${esc(name)}"${name === filters.project ? ' selected' : ''}>${esc(name)}</option>`).join('')}</select></label>
+      <label>Period<select id="summaryPeriod"><option value="all"${!range ? ' selected' : ''}>All time</option><option value="range"${range ? ' selected' : ''}>Date range</option></select></label>
+      <div id="summaryDates"${!range ? ' hidden' : ''}>
+        <label>From<input id="summaryStart" type="date" value="${esc(filters.start)}"></label>
+        <label>To<input id="summaryEnd" type="date" value="${esc(filters.end)}"></label>
+      </div>
+      <button type="submit">Apply</button>
+      <div class="report-toolbar-actions"><button type="button" id="summaryExpand">Expand all</button><button type="button" id="summaryCollapse">Collapse all</button><button type="button" id="summaryPrint" class="btn-pdf-export" title="Export as PDF / Print">&#128196; Export as PDF</button></div>
+    </form>
+    <h2>Project Summary</h2><p class="muted">${esc(filters.project || 'All projects')} &middot; ${esc(periodLabel)}</p>
+    <div class="report-kpis"><div><strong>${summary.total.toFixed(2)}</strong><span>TOTAL HOURS</span></div><div><strong>${summary.billable.toFixed(2)}</strong><span>BILLABLE</span></div><div><strong>${(summary.total - summary.billable).toFixed(2)}</strong><span>NON-BILLABLE</span></div><div><strong>${summary.projects.length}</strong><span>PROJECTS</span></div><div><strong>${summary.count}</strong><span>ENTRIES</span></div></div>
+    ${projectRows || '<p class="empty">No entries match these filters.</p>'}
+    <div class="report-total"><strong>Total</strong><strong>${summary.total.toFixed(2)} h</strong></div>
+  </section>`;
 }
 
 function buildWeeklyReport() {
@@ -1452,6 +1538,7 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
     entry: "Timesheet entry",
     day: "Daily view",
     report: "Weekly report",
+    projectSummary: "Project Summary",
     projects: "Projects",
     team: "Team activities",
     holidays: "Holidays",
