@@ -1141,14 +1141,33 @@ button.secondary:hover {
 }
 
 .task-input-group {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px max-content;
   align-items: center;
   gap: 8px;
   margin-bottom: 16px;
 }
 
 .task-input-group input {
-  flex: 1;
+  min-width: 0;
+}
+
+.task-input-group button {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .task-input-group {
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+
+  .task-input-group input {
+    grid-column: 1 / -1;
+  }
+
+  .task-input-group select {
+    max-width: 150px;
+  }
 }
 
 .tasks-board {
